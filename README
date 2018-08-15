@@ -1,0 +1,14 @@
+#About FACE++
+
+
+##授权问题
+
+在使用Face相关功能必须先授权
+
+##OPENGL es 3.0
+
+<uses-feature
+        android:glEsVersion="0x00030000"
+        android:required="true" />
+
+
