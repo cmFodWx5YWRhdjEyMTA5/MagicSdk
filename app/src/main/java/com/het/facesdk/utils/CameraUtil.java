@@ -60,7 +60,6 @@ public class CameraUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        camera.startPreview();
 
         return camera;
     }

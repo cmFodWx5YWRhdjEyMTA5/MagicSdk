@@ -15,9 +15,12 @@ import android.util.Log;
 
 import com.het.facesdk.R;
 import com.het.facesdk.SimpleBaseActivity;
+import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.utils.CameraUtil;
+import com.megvii.facepp.sdk.Facepp;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -39,6 +42,7 @@ public class MakeUpActivity extends SimpleBaseActivity {
     private CameraMatrix mCameraMatrix;
     private Camera mCamera;
     private Camera.Parameters mCamParm;
+    private ByteBuffer mCameraBuffer;
     private int[] mTextureIds = new int[4];
 
 
@@ -101,6 +105,23 @@ public class MakeUpActivity extends SimpleBaseActivity {
             if (mCamera != null) {
                 mCamParm = mCamera.getParameters();
             }
+
+            final Camera.Size size = mCamParm.getPreviewSize();
+            mCameraBuffer = ByteBuffer.allocate(size.width * size.height * 3 / 2);
+            mCamera.addCallbackBuffer(mCameraBuffer.array());
+            mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    Facepp.Face[] faces = FaceppEngine.detect(data, size.width, size.height, Facepp.IMAGEMODE_NV21);
+                    if (faces.length != 0) {
+                        Log.d(TAG, "DETECT FACE");
+                    } else {
+                        Log.d(TAG, "NOT FOUND");
+                    }
+                    mCamera.addCallbackBuffer(mCameraBuffer.array());
+                }
+            });
+            mCamera.startPreview();
 
         }
 
