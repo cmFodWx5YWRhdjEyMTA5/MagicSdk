@@ -10,6 +10,7 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
     private int mTextureId;
     private int mProgram;
     private int mVao;
+    private int mTextureLocation;
 
     public static final String DEFAULT_VERTEX_SHADER_GLSL = "# version 300 es\n" +
             "layout (location = 0) in vec4 vPosition; \n" +
@@ -86,6 +87,8 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
     public void onBindTexture() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId());
+        mTextureLocation = uniformLocation("window_texture");
+        GLES30.glUniform1i(mTextureLocation, 1);
     }
 
     public int uniformLocation(String location) {

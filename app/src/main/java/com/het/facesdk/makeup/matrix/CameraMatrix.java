@@ -37,8 +37,7 @@ public class CameraMatrix extends CommonMatrix {
 
     @Override
     public void afterLoadProgram() {
-        int cameraLocation = uniformLocation("camera_texture");
-        GLES30.glUniform1i(cameraLocation, 0);
+
     }
 
 
@@ -46,6 +45,8 @@ public class CameraMatrix extends CommonMatrix {
     public void onBindTexture() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId());
+        int cameraLocation = uniformLocation("camera_texture");
+        GLES30.glUniform1i(cameraLocation, 0);
     }
 
     @Override

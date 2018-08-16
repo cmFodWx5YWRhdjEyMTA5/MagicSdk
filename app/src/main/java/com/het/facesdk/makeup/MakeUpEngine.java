@@ -100,11 +100,11 @@ public class MakeUpEngine {
 
     public static void work() {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, gFrameBuf[0]);
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
         for (IMatrix matrix : gMatrixs) {
             matrix.draw();
         }
-//        gWindowMatrix.draw();
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+        gWindowMatrix.draw();
     }
 
     public static void push(IMatrix iMatrix) {
