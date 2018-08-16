@@ -34,7 +34,6 @@ public class MainActivity extends SimpleBaseActivity {
             @Override
             public void onClick(View v) {
                 if (FaceppEngine.hasPermission()) {
-                    FaceppEngine.init(MainActivity.this);
                     MakeUpActivity.startActivity(MainActivity.this);
                 } else {
                     requestFaceppPermission();
@@ -42,8 +41,7 @@ public class MainActivity extends SimpleBaseActivity {
             }
         });
 
-        FaceppEngine.init(this);
-
+        FaceppEngine.init(MainActivity.this);
         checkPermission();
         requestFaceppPermission();
 

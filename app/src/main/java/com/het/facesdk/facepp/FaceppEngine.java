@@ -34,28 +34,6 @@ public class FaceppEngine {
 
         gContext = context;
 
-        String errorCode = gFacepp.init(context, ConUtil.getFileContent(context, R.raw.megviifacepp_0_5_2_model),
-                NativeFaceppConfig.isOneFaceTrackig ? 1 : 0);
-        if (errorCode != null) {
-            return;
-        }
-
-        Facepp.FaceppConfig faceppConfig = gFacepp.getFaceppConfig();
-        faceppConfig.interval = 25;
-        faceppConfig.minFaceSize = 40;
-        faceppConfig.roi_left = 0;
-        faceppConfig.roi_top = 0;
-        faceppConfig.roi_right = ResourceUtil.getScreenSize(context)[0];
-        faceppConfig.roi_bottom = ResourceUtil.getScreenSize(context)[1];
-        faceppConfig.rotation = 270;
-
-        faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING_FAST;
-//            faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING_ROBUST;
-//            faceppConfig.detectionMode = Facepp.FaceppConfig.MG_FPP_DETECTIONMODE_TRACK_RECT;
-
-        gFacepp.setFaceppConfig(faceppConfig);
-        String version = gFacepp.getVersion();
-        Log.d("ceshi", "onResume:version:" + version);
     }
 
     public static void release() {
@@ -80,7 +58,7 @@ public class FaceppEngine {
         sharedPreferences.edit().putInt("day", today).putInt("month", month).apply();
     }
 
-    public static void takePermission(LicenseManager.TakeLicenseCallback callback) {
+    public static void takePermission(final LicenseManager.TakeLicenseCallback callback) {
         if (gLicenseManager == null) {
             return;
         }
@@ -88,7 +66,39 @@ public class FaceppEngine {
         long apiName = Facepp.getApiName();
         String uuid = ConUtil.getUUIDString(gContext);
         gLicenseManager.takeLicenseFromNetwork(NativeFaceppConfig.CN_LICENSE_URL, uuid, NativeFaceppConfig.API_KEY, NativeFaceppConfig.API_SECRET, apiName,
-                "1", callback);
+                "1", new LicenseManager.TakeLicenseCallback() {
+                    @Override
+                    public void onSuccess() {
+                        callback.onSuccess();
+                        String errorCode = gFacepp.init(gContext, ConUtil.getFileContent(gContext, R.raw.megviifacepp_0_5_2_model),
+                                NativeFaceppConfig.isOneFaceTrackig ? 1 : 0);
+                        if (errorCode != null) {
+                            return;
+                        }
+
+                        Facepp.FaceppConfig faceppConfig = gFacepp.getFaceppConfig();
+                        faceppConfig.interval = 25;
+                        faceppConfig.minFaceSize = 40;
+                        faceppConfig.roi_left = 0;
+                        faceppConfig.roi_top = 0;
+                        faceppConfig.roi_right = ResourceUtil.getScreenSize(gContext)[0];
+                        faceppConfig.roi_bottom = ResourceUtil.getScreenSize(gContext)[1];
+                        faceppConfig.rotation = 270;
+
+                        faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING_FAST;
+//            faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING_ROBUST;
+//            faceppConfig.detectionMode = Facepp.FaceppConfig.MG_FPP_DETECTIONMODE_TRACK_RECT;
+
+                        gFacepp.setFaceppConfig(faceppConfig);
+                        String version = gFacepp.getVersion();
+                        Log.d("ceshi", "onResume:version:" + version);
+                    }
+
+                    @Override
+                    public void onFailed(int i, byte[] bytes) {
+                        callback.onFailed(i, bytes);
+                    }
+                });
 
     }
 

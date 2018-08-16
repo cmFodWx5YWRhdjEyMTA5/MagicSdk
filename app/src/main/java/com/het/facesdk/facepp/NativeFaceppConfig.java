@@ -3,6 +3,10 @@ package com.het.facesdk.facepp;
 public final class NativeFaceppConfig {
 
 
+//    public static String API_KEY = "q9nxjliEt3Ka1AdDeherwD52JT8NGOBU";
+//    public static String API_SECRET = "UVMVmvKwu7RMCZgx1S0DxmMywxM_BCVJ";
+
+
     public static String API_KEY = "5zXPm0jl7IsXrlFjk5Eb7fZHMgX0VVxm";
     public static String API_SECRET = "jc23PW3ZFimGvXVYCxBTTTTwSR1EcRNM";
 
