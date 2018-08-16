@@ -1,16 +1,17 @@
-package com.het.facesdk.makeup;
+package com.het.facesdk.makeup.matrix;
 
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
+import com.het.facesdk.makeup.MakeUpEngine;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
-public class CameraMatrix implements MakeUpEngine.IMatrix {
+public class CameraMatrix extends CommonMatrix {
     private static final String TAG = CameraMatrix.class.getSimpleName();
 
     private static final String VERTEX_SHADER_GLSL = "# version 300 es\n" +
@@ -31,6 +32,8 @@ public class CameraMatrix implements MakeUpEngine.IMatrix {
                     "out lowp vec4 out_color;\n" +
                     "void main() {\n" +
                     "   out_color = texture(camera_texture,rTexture);\n" +
+                    "   if(rTexture.x<0.3){ out_color.r = 0.8;}\n" +
+//                    "   out_color.r = texture(camera_texture,rTexture);\n" +
 //                    "   out_color = vec4(1.0,1.0,0.0,1.0);\n" +
                     "}\n";
 
@@ -44,7 +47,6 @@ public class CameraMatrix implements MakeUpEngine.IMatrix {
             1.0f, -1.0f, 0.0f, 0.0f
     };
 
-    private int cameraTextureId;
     private int maskTextureId;
     private int program;
     private int vertexShaderId;
@@ -52,8 +54,7 @@ public class CameraMatrix implements MakeUpEngine.IMatrix {
 
 
     public CameraMatrix(int cameraTextureId) {
-
-        this.cameraTextureId = cameraTextureId;
+        super(cameraTextureId);
         createShader();
         createVBO();
     }
@@ -100,17 +101,18 @@ public class CameraMatrix implements MakeUpEngine.IMatrix {
     }
 
 
+    int[] vao = new int[1];
+    int[] vbo = new int[1];
+
     private void createVBO() {
 
         GLES30.glUseProgram(program);
-        int[] vao = new int[1];
         GLES30.glGenVertexArrays(1, vao, 0);
         GLES30.glBindVertexArray(vao[0]);
 
         FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(vertexs.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         vertexBuffer.put(vertexs);
         vertexBuffer.position(0);
-        int[] vbo = new int[1];
         GLES30.glGenBuffers(1, vbo, 0);
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0]);
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertexs.length * 4, vertexBuffer, GLES30.GL_STATIC_DRAW);
@@ -128,14 +130,16 @@ public class CameraMatrix implements MakeUpEngine.IMatrix {
 
         int cameraLocation = GLES30.glGetUniformLocation(program, "camera_texture");
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
-        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureId);
+        GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId());
         GLES30.glUniform1i(cameraLocation, 0);
+        GLES30.glBindVertexArray(0);
 
     }
 
     @Override
     public void draw() {
         GLES30.glUseProgram(program);
+        GLES30.glBindVertexArray(vao[0]);
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
     }
 }

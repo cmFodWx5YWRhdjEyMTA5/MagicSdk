@@ -10,28 +10,110 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class WindowMatrix implements MakeUpEngine.IMatrix {
-    private static final String TAG = WindowMatrix.class.getSimpleName();
+public class BiMatrix extends CommonMatrix {
+    private static final String TAG = BiMatrix.class.getSimpleName();
 
-    private static final String VERTEX_SHADER_GLSL = "# version 300 es\n" +
-            "layout (location = 0) in vec4 vPosition; \n" +
-            "layout (location = 1) in vec2 vTexture; \n" +
-            "out vec2 rTexture; \n" +
-            "void main() { \n" +
-            "   gl_Position = vPosition; \n" +
-            "   rTexture = vTexture; \n" +
-            "}\n";
+    public static final String VERTEX_SHADER_GLSL = "#version 300 es\n" +
+            "layout(location = 0)  in vec4 position;\n" +
+            "layout(location = 1)  in vec4 inputTextureCoordinate;\n" +
 
-    private static final String FRAG_SHADER_GLSL =
-            "# version 300 es\n" +
-                    "precision mediump float;\n" +
-                    "uniform sampler2D window_texture;\n" +
-                    "in lowp vec2 rTexture;\n" +
-                    "out lowp vec4 out_color;\n" +
-                    "void main() {\n" +
-                    "   out_color = texture(window_texture,rTexture);\n" +
-//                    "   out_color = vec4(1.0,1.0,0.0,1.0);\n" +
-                    "}\n";
+            "const int GAUSSIAN_SAMPLES = 9;\n" +
+
+            "uniform vec2 singleStepOffset;\n" +
+
+            "out vec2 textureCoordinate;\n" +
+            "out vec2 blurCoordinates[GAUSSIAN_SAMPLES];\n" +
+
+            "void main()\n" +
+            "{\n" +
+            "	gl_Position = position;\n" +
+            "	textureCoordinate = inputTextureCoordinate.xy;\n" +
+
+            "	int multiplier = 0;\n" +
+            "	vec2 blurStep;\n" +
+
+            "	for (int i = 0; i < GAUSSIAN_SAMPLES; i++)\n" +
+            "	{\n" +
+            "		multiplier = (i - ((GAUSSIAN_SAMPLES - 1) / 2));\n" +
+
+            "		blurStep = float(multiplier) * singleStepOffset;\n" +
+            "		blurCoordinates[i] = inputTextureCoordinate.xy + blurStep;\n" +
+            "	}\n" +
+            "}";
+
+    public static final String FRAG_SHADER_GLSL = "#version 300 es\n" +
+            " uniform sampler2D inputImageTexture;\n" +
+
+            " const lowp int GAUSSIAN_SAMPLES = 9;\n" +
+
+            " out highp vec2 textureCoordinate;\n" +
+            " out highp vec2 blurCoordinates[GAUSSIAN_SAMPLES];\n" +
+            " out vec4 out_color;\n" +
+            " uniform mediump float distanceNormalizationFactor;\n" +
+
+            " void main()\n" +
+            " {\n" +
+            "     lowp vec4 centralColor;\n" +
+            "     lowp float gaussianWeightTotal;\n" +
+            "     lowp vec4 sum;\n" +
+            "     lowp vec4 sampleColor;\n" +
+            "     lowp float distanceFromCentralColor;\n" +
+            "     lowp float gaussianWeight;\n" +
+            "     \n" +
+            "     centralColor = texture(inputImageTexture, blurCoordinates[4]);\n" +
+            "     gaussianWeightTotal = 0.18;\n" +
+            "     sum = centralColor * 0.18;\n" +
+            "     \n" +
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[0]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.05 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[1]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.09 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[2]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.12 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[3]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.15 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[5]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.15 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[6]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.12 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[7]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.09 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+
+            "     sampleColor = texture(inputImageTexture, blurCoordinates[8]);\n" +
+            "     distanceFromCentralColor = min(distance(centralColor, sampleColor) * distanceNormalizationFactor, 1.0);\n" +
+            "     gaussianWeight = 0.05 * (1.0 - distanceFromCentralColor);\n" +
+            "     gaussianWeightTotal += gaussianWeight;\n" +
+            "     sum += sampleColor * gaussianWeight;\n" +
+            "     out_color = sum / gaussianWeightTotal;\n" +
+//			" gl_FragColor.r = distanceNormalizationFactor / 20.0;" +
+            " }";
 
 
     private float[] vertexs = new float[]{
@@ -52,9 +134,8 @@ public class WindowMatrix implements MakeUpEngine.IMatrix {
     int[] vbo = new int[1];
 
 
-    public WindowMatrix(int textureId) {
-
-        this.textureId = textureId;
+    public BiMatrix(int textureId) {
+        super(textureId);
         createShader();
         createVBO();
     }
@@ -97,6 +178,10 @@ public class WindowMatrix implements MakeUpEngine.IMatrix {
             return;
         }
 
+        mDisFactorLocation = GLES20.glGetUniformLocation(program, "distanceNormalizationFactor");
+        mSingleStepOffsetLocation = GLES20.glGetUniformLocation(program, "singleStepOffset");
+        mTextureLocation = GLES20.glGetUniformLocation(program, "inputImageTexture");
+
 
     }
 
@@ -136,8 +221,39 @@ public class WindowMatrix implements MakeUpEngine.IMatrix {
     @Override
     public void draw() {
         GLES30.glUseProgram(program);
+
+        setInt(mTextureLocation, textureId());
+        setDistanceNormalizationFactor(0.5f);
+
         GLES30.glBindVertexArray(vao[0]);
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
+    }
+
+
+    private float mDistanceNormalizationFactor;
+    private int mDisFactorLocation;
+    private int mSingleStepOffsetLocation;
+    private int mTextureLocation;
+
+    public void setDistanceNormalizationFactor(final float newValue) {
+        mDistanceNormalizationFactor = newValue;
+        setFloat(mDisFactorLocation, newValue);
+    }
+
+    private void setTexelSize(final float w, final float h) {
+        setFloatVec2(mSingleStepOffsetLocation, new float[]{1.0f / w, 1.0f / h});
+    }
+
+    private void setInt(final int location, final int value) {
+        GLES30.glUniform1i(location, value);
+    }
+
+    private void setFloat(final int location, final float floatValue) {
+        GLES30.glUniform1f(location, floatValue);
+    }
+
+    private void setFloatVec2(final int location, final float[] arrayValue) {
+        GLES30.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
     }
 }

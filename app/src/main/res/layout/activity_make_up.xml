@@ -10,6 +10,26 @@
         android:layout_width="match_parent"
         android:layout_height="100dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="磨皮" />
+
+            <SeekBar
+                android:id="@+id/bi_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:max="100"
+                android:progress="50" />
+
+        </LinearLayout>
+
+
     </RelativeLayout>
 
     <android.opengl.GLSurfaceView

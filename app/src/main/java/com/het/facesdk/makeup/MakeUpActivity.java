@@ -12,10 +12,12 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.SeekBar;
 
 import com.het.facesdk.R;
 import com.het.facesdk.SimpleBaseActivity;
 import com.het.facesdk.facepp.FaceppEngine;
+import com.het.facesdk.makeup.matrix.BiMatrix;
 import com.het.facesdk.utils.CameraUtil;
 import com.megvii.facepp.sdk.Facepp;
 
@@ -36,14 +38,16 @@ public class MakeUpActivity extends SimpleBaseActivity {
     }
 
 
+    private SeekBar mBiSeekBar;
     private GLSurfaceView mGLSurfaceView;
     private CameraRender mCameraRender;
     private SurfaceTexture mCameraTexture;
-    private CameraMatrix mCameraMatrix;
+    private MakeUpEngine.IMatrix mCameraMatrix;
+    private MakeUpEngine.IMatrix mBiMatrix;
     private Camera mCamera;
     private Camera.Parameters mCamParm;
     private ByteBuffer mCameraBuffer;
-    private int[] mTextureIds = new int[4];
+//    private int[] mTextureIds = new int[4];
 
 
     @Override
@@ -53,6 +57,24 @@ public class MakeUpActivity extends SimpleBaseActivity {
 
         checkIfSupportOpenGL3();
 
+        mBiSeekBar = findViewById(R.id.bi_seekbar);
+        mBiSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                BiMatrix matrix = (BiMatrix) mBiMatrix;
+                matrix.setDistanceNormalizationFactor(progress * 1.0f / 100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         mGLSurfaceView = findViewById(R.id.glSurfaceView);
         mCameraRender = new CameraRender();
         mGLSurfaceView.setEGLContextClientVersion(3);
@@ -90,18 +112,14 @@ public class MakeUpActivity extends SimpleBaseActivity {
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
-            GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            GLES30.glGenTextures(mTextureIds.length, mTextureIds, 0);
 
-            mCameraTexture = new SurfaceTexture(mTextureIds[0]);
-            mCameraMatrix = new CameraMatrix(mTextureIds[0]);
-            mCameraTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-                @Override
-                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                    mGLSurfaceView.requestRender();
-                }
-            });
-            mCamera = CameraUtil.openCamera(mGLSurfaceView, mCameraTexture);
+            GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+
+            mCameraMatrix = MakeUpEngine.create(MakeUpFactory.CAMERA);
+            mBiMatrix = MakeUpEngine.create(MakeUpFactory.BALTILE);
+
+            mCamera = CameraUtil.openCamera(mGLSurfaceView.getMeasuredWidth(), mGLSurfaceView.getMeasuredHeight());
             if (mCamera != null) {
                 mCamParm = mCamera.getParameters();
             }
@@ -121,22 +139,36 @@ public class MakeUpActivity extends SimpleBaseActivity {
                     mCamera.addCallbackBuffer(mCameraBuffer.array());
                 }
             });
-            mCamera.startPreview();
 
+            mCameraTexture = new SurfaceTexture(mCameraMatrix.textureId());
+            mCameraTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                @Override
+                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                    mGLSurfaceView.requestRender();
+                }
+            });
+            try {
+                mCamera.setPreviewTexture(mCameraTexture);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            MakeUpEngine.onSurfaceCreated(size.width, size.height);
+            MakeUpEngine.push(mCameraMatrix);
+            MakeUpEngine.push(mBiMatrix);
+            mCamera.startPreview();
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             gl.glViewport(0, 0, width, height);
+            MakeUpEngine.onSurfaceChanged();
         }
 
         @Override
         public void onDrawFrame(GL10 gl) {
-            GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-
             mCameraTexture.updateTexImage();
-            mCameraMatrix.draw();
-
+            GLES30.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+            MakeUpEngine.work();
         }
     }
 }

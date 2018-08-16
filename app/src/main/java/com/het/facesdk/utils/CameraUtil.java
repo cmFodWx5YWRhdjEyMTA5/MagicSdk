@@ -21,10 +21,9 @@ public class CameraUtil {
     /**
      * 这个方法必须在onSurfaceCreate调用
      *
-     * @param glSurfaceView
      * @return
      */
-    public static Camera openCamera(GLSurfaceView glSurfaceView, SurfaceTexture surfaceTexture) {
+    public static Camera openCamera(int width,int height) {
         Camera camera = null;
         boolean isOpen = false;
         try {
@@ -49,17 +48,12 @@ public class CameraUtil {
         }
 
         Camera.Parameters camParm = camera.getParameters();
-        Camera.Size size = calBestPreviewSize(camParm, glSurfaceView.getMeasuredWidth(), glSurfaceView.getMeasuredHeight());
+        Camera.Size size = calBestPreviewSize(camParm,width,height);
         camParm.setPreviewSize(size.width, size.height);
         camParm.setPreviewFrameRate(30);
         camParm.setPreviewFormat(ImageFormat.NV21);
         camera.setParameters(camParm);
 
-        try {
-            camera.setPreviewTexture(surfaceTexture);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         return camera;
     }
