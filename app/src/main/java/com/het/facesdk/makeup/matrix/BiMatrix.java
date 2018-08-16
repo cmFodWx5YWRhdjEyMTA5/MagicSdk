@@ -46,10 +46,10 @@ public class BiMatrix extends CommonMatrix {
 
             " const lowp int GAUSSIAN_SAMPLES = 9;\n" +
 
-            " out highp vec2 textureCoordinate;\n" +
-            " out highp vec2 blurCoordinates[GAUSSIAN_SAMPLES];\n" +
-            " out vec4 out_color;\n" +
+            " in highp vec2 textureCoordinate;\n" +
+            " in highp vec2 blurCoordinates[GAUSSIAN_SAMPLES];\n" +
             " uniform mediump float distanceNormalizationFactor;\n" +
+            " out mediump vec4 out_color;\n" +
 
             " void main()\n" +
             " {\n" +
@@ -125,8 +125,6 @@ public class BiMatrix extends CommonMatrix {
             1.0f, -1.0f, 1.0f, 0.0f
     };
 
-    private int textureId;
-    private int maskTextureId;
     private int program;
     private int vertexShaderId;
     private int fragShaderId;
@@ -178,9 +176,9 @@ public class BiMatrix extends CommonMatrix {
             return;
         }
 
-        mDisFactorLocation = GLES20.glGetUniformLocation(program, "distanceNormalizationFactor");
+        mDisFactorLocation = GLES30.glGetUniformLocation(program, "distanceNormalizationFactor");
         mSingleStepOffsetLocation = GLES20.glGetUniformLocation(program, "singleStepOffset");
-        mTextureLocation = GLES20.glGetUniformLocation(program, "inputImageTexture");
+        mTextureLocation = GLES30.glGetUniformLocation(program, "inputImageTexture");
 
 
     }
@@ -211,10 +209,6 @@ public class BiMatrix extends CommonMatrix {
             return;
         }
 
-        int cameraLocation = GLES30.glGetUniformLocation(program, "window_texture");
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId);
-        GLES30.glUniform1i(cameraLocation, 1);
         GLES30.glBindVertexArray(0);
     }
 
@@ -222,12 +216,24 @@ public class BiMatrix extends CommonMatrix {
     public void draw() {
         GLES30.glUseProgram(program);
 
-        setInt(mTextureLocation, textureId());
-        setDistanceNormalizationFactor(0.5f);
-
         GLES30.glBindVertexArray(vao[0]);
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId());
+
+        setInt(mTextureLocation, 1);
+        setDistanceNormalizationFactor(8.0f);
+
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
+    }
+
+    @Override
+    public void onSurfaceChanged(int w, int h) {
+        setTexelSize(w, h);
+    }
+
+    @Override
+    public void onSurfaceCreated() {
+
     }
 
 
@@ -242,18 +248,23 @@ public class BiMatrix extends CommonMatrix {
     }
 
     private void setTexelSize(final float w, final float h) {
+        GLES30.glUseProgram(program);
         setFloatVec2(mSingleStepOffsetLocation, new float[]{1.0f / w, 1.0f / h});
     }
 
     private void setInt(final int location, final int value) {
+        GLES30.glUseProgram(program);
         GLES30.glUniform1i(location, value);
     }
 
     private void setFloat(final int location, final float floatValue) {
+        GLES30.glUseProgram(program);
         GLES30.glUniform1f(location, floatValue);
     }
 
     private void setFloatVec2(final int location, final float[] arrayValue) {
+        GLES30.glUseProgram(program);
         GLES30.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
     }
+
 }

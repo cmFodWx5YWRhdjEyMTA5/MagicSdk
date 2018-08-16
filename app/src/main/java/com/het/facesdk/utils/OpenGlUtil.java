@@ -19,13 +19,18 @@ package com.het.facesdk.utils;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.hardware.Camera.Size;
+import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 public class OpenGlUtil {
+    private static final String TAG = OpenGlUtil.class.getSimpleName();
     public static final int NO_TEXTURE = -1;
 
     public static int loadTexture(final Bitmap img, final int usedTexId) {
@@ -132,6 +137,34 @@ public class OpenGlUtil {
         GLES30.glDeleteShader(iVShader);
         GLES30.glDeleteShader(iFShader);
         return iProgId;
+    }
+
+    public static int genVAO(float[] vertexs) {
+        int[] vao = new int[1];
+        int[] vbo = new int[1];
+        GLES30.glGenVertexArrays(1, vao, 0);
+        GLES30.glBindVertexArray(vao[0]);
+
+        FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(vertexs.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        vertexBuffer.put(vertexs);
+        vertexBuffer.position(0);
+        GLES30.glGenBuffers(1, vbo, 0);
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0]);
+        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertexs.length * 4, vertexBuffer, GLES30.GL_STATIC_DRAW);
+        GLES30.glVertexAttribPointer(0, 2, GLES20.GL_FLOAT, false, 16, 0);
+        GLES30.glEnableVertexAttribArray(0);
+        GLES30.glVertexAttribPointer(1, 2, GLES20.GL_FLOAT, false, 16, 8);
+        GLES30.glEnableVertexAttribArray(1);
+
+
+        int error = GLES30.glGetError();
+        if (error != GLES30.GL_NO_ERROR) {
+            Log.d(TAG, error + "");
+            return -1;
+        }
+
+        GLES30.glBindVertexArray(0);
+        return vao[0];
     }
 
     public static float rnd(final float min, final float max) {

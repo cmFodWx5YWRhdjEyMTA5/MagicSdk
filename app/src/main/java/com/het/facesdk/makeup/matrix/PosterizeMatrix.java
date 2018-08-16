@@ -4,13 +4,12 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
-import com.het.facesdk.makeup.MakeUpEngine;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class WindowMatrix extends CommonMatrix {
+public class PosterizeMatrix extends CommonMatrix {
+
     private static final String TAG = WindowMatrix.class.getSimpleName();
 
     private static final String VERTEX_SHADER_GLSL = "# version 300 es\n" +
@@ -22,16 +21,23 @@ public class WindowMatrix extends CommonMatrix {
             "   rTexture = vTexture; \n" +
             "}\n";
 
-    private static final String FRAG_SHADER_GLSL =
-            "# version 300 es\n" +
-                    "precision mediump float;\n" +
-                    "uniform sampler2D window_texture;\n" +
-                    "in lowp vec2 rTexture;\n" +
-                    "out lowp vec4 out_color;\n" +
-                    "void main() {\n" +
-                    "   out_color = texture(window_texture,rTexture);\n" +
-//                    "   out_color = vec4(1.0,1.0,0.0,1.0);\n" +
-                    "}\n";
+
+    public static final String FRAG_SHADER_GLSL = "# version 300 es\n" +
+            "varying highp vec2 textureCoordinate;\n" +
+            "\n" +
+            "uniform sampler2D inputImageTexture;\n" +
+            "uniform highp float colorLevels;\n" +
+            "out lowp vec4 out_color;\n" +
+            "\n" +
+            "void main()\n" +
+            "{\n" +
+            "   highp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+            "   \n" +
+            "   out_color = floor((textureColor * colorLevels) + vec4(0.5)) / colorLevels;\n" +
+            "}";
+
+    private int mGLUniformColorLevels;
+    private int mColorLevels;
 
 
     private float[] vertexs = new float[]{
@@ -50,7 +56,7 @@ public class WindowMatrix extends CommonMatrix {
     int[] vbo = new int[1];
 
 
-    public WindowMatrix(int textureId) {
+    public PosterizeMatrix(int textureId) {
         super(textureId);
         createShader();
         createVBO();
@@ -135,6 +141,7 @@ public class WindowMatrix extends CommonMatrix {
         GLES30.glUseProgram(program);
         GLES30.glBindVertexArray(vao[0]);
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId());
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
     }
 

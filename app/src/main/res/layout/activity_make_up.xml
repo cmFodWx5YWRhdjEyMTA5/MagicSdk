@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/glSurfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
     <RelativeLayout
         android:id="@+id/operations"
         android:layout_width="match_parent"
@@ -31,11 +39,5 @@
 
 
     </RelativeLayout>
-
-    <android.opengl.GLSurfaceView
-        android:id="@+id/glSurfaceView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
 
 </RelativeLayout>

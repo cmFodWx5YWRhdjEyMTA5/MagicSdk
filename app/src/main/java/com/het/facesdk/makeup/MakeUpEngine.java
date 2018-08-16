@@ -15,6 +15,7 @@ import java.util.LinkedList;
  * 化妆MakeUp
  * 1.新建FBO缓冲区,绑定输出纹理
  * 2.逐步执行相关添加进来的动作
+ *
  * @Galis
  */
 public class MakeUpEngine {
@@ -83,12 +84,14 @@ public class MakeUpEngine {
             Log.d(TAG, "FBO CREATE ERROR!!");
         }
 
-        gWindowMatrix = MakeUpFactory.create(MakeUpFactory.WINDOW, gTexture[0]);
+        gWindowMatrix = MakeUpEngine.create(MakeUpEngine.WINDOW);
 
     }
 
-    public static void onSurfaceChanged() {
-
+    public static void onSurfaceChanged(int w,int h) {
+        for (IMatrix matrix:gMatrixs){
+            matrix.onSurfaceChanged(w,h);
+        }
     }
 
     public static void onSurfaceDestory() {
@@ -97,11 +100,11 @@ public class MakeUpEngine {
 
     public static void work() {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, gFrameBuf[0]);
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
         for (IMatrix matrix : gMatrixs) {
             matrix.draw();
         }
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
-        gWindowMatrix.draw();
+//        gWindowMatrix.draw();
     }
 
     public static void push(IMatrix iMatrix) {
@@ -118,7 +121,12 @@ public class MakeUpEngine {
 
     public interface IMatrix {
         void draw();
+
         int textureId();
+
+        void onSurfaceChanged(int w, int h);
+
+        void onSurfaceCreated();
     }
 
 

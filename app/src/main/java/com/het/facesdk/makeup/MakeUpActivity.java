@@ -19,6 +19,7 @@ import com.het.facesdk.SimpleBaseActivity;
 import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.makeup.matrix.BiMatrix;
 import com.het.facesdk.utils.CameraUtil;
+import com.het.facesdk.utils.FilterUtil;
 import com.megvii.facepp.sdk.Facepp;
 
 import java.io.IOException;
@@ -60,9 +61,16 @@ public class MakeUpActivity extends SimpleBaseActivity {
         mBiSeekBar = findViewById(R.id.bi_seekbar);
         mBiSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                BiMatrix matrix = (BiMatrix) mBiMatrix;
-                matrix.setDistanceNormalizationFactor(progress * 1.0f / 100);
+            public void onProgressChanged(SeekBar seekBar, final int progress, boolean fromUser) {
+
+                mGLSurfaceView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "onProgressChanged#" + progress);
+                        BiMatrix matrix = (BiMatrix) mBiMatrix;
+                        matrix.setDistanceNormalizationFactor(FilterUtil.range(progress, 0.0f, 15.0f));
+                    }
+                });
             }
 
             @Override
@@ -116,15 +124,18 @@ public class MakeUpActivity extends SimpleBaseActivity {
             GLES30.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 
-            mCameraMatrix = MakeUpEngine.create(MakeUpFactory.CAMERA);
-            mBiMatrix = MakeUpEngine.create(MakeUpFactory.BALTILE);
-
             mCamera = CameraUtil.openCamera(mGLSurfaceView.getMeasuredWidth(), mGLSurfaceView.getMeasuredHeight());
             if (mCamera != null) {
                 mCamParm = mCamera.getParameters();
             }
-
             final Camera.Size size = mCamParm.getPreviewSize();
+
+            MakeUpEngine.onSurfaceCreated(size.width, size.height);
+            mCameraMatrix = MakeUpEngine.create(MakeUpEngine.CAMERA);
+//            mBiMatrix = MakeUpEngine.create(MakeUpEngine.BILATERAL);
+            MakeUpEngine.push(mCameraMatrix);
+//            MakeUpEngine.push(mBiMatrix);
+
             mCameraBuffer = ByteBuffer.allocate(size.width * size.height * 3 / 2);
             mCamera.addCallbackBuffer(mCameraBuffer.array());
             mCamera.setPreviewCallbackWithBuffer(new Camera.PreviewCallback() {
@@ -152,16 +163,13 @@ public class MakeUpActivity extends SimpleBaseActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            MakeUpEngine.onSurfaceCreated(size.width, size.height);
-            MakeUpEngine.push(mCameraMatrix);
-            MakeUpEngine.push(mBiMatrix);
             mCamera.startPreview();
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             gl.glViewport(0, 0, width, height);
-            MakeUpEngine.onSurfaceChanged();
+            MakeUpEngine.onSurfaceChanged(width, height);
         }
 
         @Override
