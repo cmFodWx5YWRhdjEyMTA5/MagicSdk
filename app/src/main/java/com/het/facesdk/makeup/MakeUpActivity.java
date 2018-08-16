@@ -18,6 +18,7 @@ import com.het.facesdk.R;
 import com.het.facesdk.SimpleBaseActivity;
 import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.makeup.matrix.BiMatrix;
+import com.het.facesdk.makeup.matrix.PosterizeMatrix;
 import com.het.facesdk.utils.CameraUtil;
 import com.het.facesdk.utils.FilterUtil;
 import com.megvii.facepp.sdk.Facepp;
@@ -45,6 +46,7 @@ public class MakeUpActivity extends SimpleBaseActivity {
     private SurfaceTexture mCameraTexture;
     private MakeUpEngine.IMatrix mCameraMatrix;
     private MakeUpEngine.IMatrix mBiMatrix;
+    private MakeUpEngine.IMatrix mPosterizeMatrix;
     private Camera mCamera;
     private Camera.Parameters mCamParm;
     private ByteBuffer mCameraBuffer;
@@ -67,8 +69,10 @@ public class MakeUpActivity extends SimpleBaseActivity {
                     @Override
                     public void run() {
                         Log.d(TAG, "onProgressChanged#" + progress);
-                        BiMatrix matrix = (BiMatrix) mBiMatrix;
-                        matrix.setDistanceNormalizationFactor(FilterUtil.range(progress, 0.0f, 15.0f));
+//                        BiMatrix matrix = (BiMatrix) mBiMatrix;
+//                        matrix.setDistanceNormalizationFactor(FilterUtil.range(progress, 0.0f, 15.0f));
+                        PosterizeMatrix posterizeMatrix = (PosterizeMatrix) mPosterizeMatrix;
+                        posterizeMatrix.setColorLevels(FilterUtil.range(progress, 1, 50));
                     }
                 });
             }
@@ -130,11 +134,13 @@ public class MakeUpActivity extends SimpleBaseActivity {
             }
             final Camera.Size size = mCamParm.getPreviewSize();
 
-            MakeUpEngine.onSurfaceCreated(size.width, size.height);
+            MakeUpEngine.onSurfaceCreated(mGLSurfaceView.getMeasuredWidth(), mGLSurfaceView.getMeasuredWidth());
             mCameraMatrix = MakeUpEngine.create(MakeUpEngine.CAMERA);
 //            mBiMatrix = MakeUpEngine.create(MakeUpEngine.BILATERAL);
+            mPosterizeMatrix = MakeUpEngine.create(MakeUpEngine.POSTERIZE);
             MakeUpEngine.push(mCameraMatrix);
 //            MakeUpEngine.push(mBiMatrix);
+            MakeUpEngine.push(mPosterizeMatrix);
 
             mCameraBuffer = ByteBuffer.allocate(size.width * size.height * 3 / 2);
             mCamera.addCallbackBuffer(mCameraBuffer.array());

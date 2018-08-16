@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.het.facesdk.makeup.matrix.BiMatrix;
 import com.het.facesdk.makeup.matrix.CameraMatrix;
+import com.het.facesdk.makeup.matrix.PosterizeMatrix;
 import com.het.facesdk.makeup.matrix.WindowMatrix;
 
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ public class MakeUpEngine {
     public static final int CAMERA = 0;
     public static final int BILATERAL = CAMERA + 1;
     public static final int WINDOW = BILATERAL + 1;
+    public static final int POSTERIZE = WINDOW + 1;
 
     private static final String TAG = MakeUpEngine.class.getSimpleName();
     private static int[] gFrameBuf = new int[1];
@@ -39,6 +41,8 @@ public class MakeUpEngine {
                 return new CameraMatrix(gCameraTexture[0]);
             case BILATERAL:
                 return new BiMatrix(gTexture[0]);
+            case POSTERIZE:
+                return new PosterizeMatrix(gTexture[0]);
             case WINDOW:
                 return new WindowMatrix(gTexture[0]);
         }
@@ -67,7 +71,7 @@ public class MakeUpEngine {
         GLES30.glTexParameterf(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-        //确认是个竖直方向的纹理
+//        确认是个竖直方向的纹理
         if (width > height) {
             GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, height, width, 0, GLES20.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, null);
         } else {
@@ -88,9 +92,9 @@ public class MakeUpEngine {
 
     }
 
-    public static void onSurfaceChanged(int w,int h) {
-        for (IMatrix matrix:gMatrixs){
-            matrix.onSurfaceChanged(w,h);
+    public static void onSurfaceChanged(int w, int h) {
+        for (IMatrix matrix : gMatrixs) {
+            matrix.onSurfaceChanged(w, h);
         }
     }
 
@@ -100,15 +104,19 @@ public class MakeUpEngine {
 
     public static void work() {
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, gFrameBuf[0]);
-        for (IMatrix matrix : gMatrixs) {
-            matrix.draw();
-        }
+        gMatrixs.get(0).draw();
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
-        gWindowMatrix.draw();
+        gMatrixs.get(1).draw();
+//        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, gFrameBuf[0]);
+//        for (IMatrix matrix : gMatrixs) {
+//            matrix.draw();
+//        }
+//        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+//        gWindowMatrix.draw();
     }
 
     public static void push(IMatrix iMatrix) {
-        gMatrixs.push(iMatrix);
+        gMatrixs.add(iMatrix);
     }
 
     public static IMatrix pollLast() {

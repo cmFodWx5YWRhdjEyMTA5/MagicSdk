@@ -11,10 +11,10 @@ public class CameraMatrix extends CommonMatrix {
                     "#extension GL_OES_EGL_image_external : require\n" +
                     "precision mediump float;\n" +
                     "uniform samplerExternalOES camera_texture;\n" +
-                    "in lowp vec2 rTexture;\n" +
+                    "in lowp vec2 textureCoordinate;\n" +
                     "out lowp vec4 out_color;\n" +
                     "void main() {\n" +
-                    "   out_color = texture(camera_texture,rTexture);\n" +
+                    "   out_color = texture(camera_texture,textureCoordinate);\n" +
 //                    "   if(rTexture.x<0.3){ out_color.r = 0.8;}\n" +
 //                    "   out_color.r = texture(camera_texture,rTexture);\n" +
 //                    "   out_color = vec4(1.0,1.0,0.0,1.0);\n" +
@@ -49,13 +49,4 @@ public class CameraMatrix extends CommonMatrix {
         GLES30.glUniform1i(mCameraTextureLocation, 0);
     }
 
-    @Override
-    public void onSurfaceChanged(int w, int h) {
-
-    }
-
-    @Override
-    public void onSurfaceCreated() {
-
-    }
 }
