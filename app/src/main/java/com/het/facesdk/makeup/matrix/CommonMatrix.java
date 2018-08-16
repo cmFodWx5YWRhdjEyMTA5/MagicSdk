@@ -1,5 +1,6 @@
 package com.het.facesdk.makeup.matrix;
 
+import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import com.het.facesdk.makeup.MakeUpEngine;
@@ -46,6 +47,11 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
         this(textureId, DEFAULT_VERTEXS);
     }
 
+    public CommonMatrix(int textureId, String vertexGlsl, String fragGlsl) {
+        this(textureId, DEFAULT_VERTEXS, vertexGlsl, fragGlsl);
+    }
+
+
     public CommonMatrix(int textureId, float[] vertexs) {
         this(textureId, vertexs, DEFAULT_VERTEX_SHADER_GLSL, DEFAULT_FRAG_SHADER_GLSL);
     }
@@ -54,7 +60,7 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
         mProgram = OpenGlUtil.loadProgram(vertexGlsl, fragGlsl);
         mVao = OpenGlUtil.genVAO(vertexs);
         mTextureId = textureId;
-        afterLoadProgram();
+        onFinishInit();
     }
 
     @Override
@@ -80,18 +86,25 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
 
     }
 
-    public void afterLoadProgram() {
-
+    public void onFinishInit() {
+        mTextureLocation = uniformLocation("window_texture");
     }
 
     public void onBindTexture() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId());
-        mTextureLocation = uniformLocation("window_texture");
         GLES30.glUniform1i(mTextureLocation, 1);
     }
 
     public int uniformLocation(String location) {
         return GLES30.glGetUniformLocation(mProgram, location);
+    }
+
+    protected void setInteger(final int location, final int intValue) {
+        GLES30.glUniform1i(location, intValue);
+    }
+
+    protected void setFloat(final int location, final float floatValue) {
+        GLES30.glUniform1f(location, floatValue);
     }
 }

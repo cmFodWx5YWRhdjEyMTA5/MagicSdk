@@ -29,6 +29,8 @@ public class CameraMatrix extends CommonMatrix {
             1.0f, -1.0f, 0.0f, 0.0f
     };
 
+    private int mCameraTextureLocation;
+
 
     public CameraMatrix(int cameraTextureId) {
         super(cameraTextureId, CAMERA_VERTEXS, DEFAULT_VERTEX_SHADER_GLSL, FRAG_SHADER_GLSL);
@@ -36,17 +38,15 @@ public class CameraMatrix extends CommonMatrix {
 
 
     @Override
-    public void afterLoadProgram() {
-
+    public void onFinishInit() {
+        mCameraTextureLocation = uniformLocation("camera_texture");
     }
-
 
     @Override
     public void onBindTexture() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId());
-        int cameraLocation = uniformLocation("camera_texture");
-        GLES30.glUniform1i(cameraLocation, 0);
+        GLES30.glUniform1i(mCameraTextureLocation, 0);
     }
 
     @Override
