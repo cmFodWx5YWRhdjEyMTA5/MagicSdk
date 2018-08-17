@@ -1,11 +1,12 @@
 package com.het.facesdk.makeup.matrix;
 
 import android.opengl.GLES11Ext;
-import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import com.het.facesdk.makeup.MakeUpEngine;
 import com.het.facesdk.utils.OpenGlUtil;
+
+import java.nio.FloatBuffer;
 
 public class CommonMatrix implements MakeUpEngine.IMatrix {
 
@@ -59,6 +60,7 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
 
     public CommonMatrix(int textureId, float[] vertexs, String vertexGlsl, String fragGlsl) {
         mProgram = OpenGlUtil.loadProgram(vertexGlsl, fragGlsl);
+        GLES30.glUseProgram(mProgram);
         mVao = OpenGlUtil.genVAO(vertexs);
         mTextureId = textureId;
         onFinishInit();
@@ -112,4 +114,11 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
         GLES30.glUseProgram(mProgram);
         GLES30.glUniform1f(location, floatValue);
     }
+
+    protected void setFloatVec2(final int location, final float[] arrayValue) {
+        GLES30.glUseProgram(mProgram);
+        GLES30.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
+    }
+
+
 }

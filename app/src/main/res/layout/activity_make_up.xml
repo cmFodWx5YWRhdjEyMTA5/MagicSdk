@@ -6,7 +6,6 @@
     tools:context=".MainActivity">
 
 
-
     <android.opengl.GLSurfaceView
         android:id="@+id/glSurfaceView"
         android:layout_width="match_parent"
@@ -25,7 +24,8 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:text="磨皮" />
 
             <SeekBar

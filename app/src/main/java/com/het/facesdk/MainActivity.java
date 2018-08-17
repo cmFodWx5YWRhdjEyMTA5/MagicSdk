@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.het.facesdk.core.FaceThreadManager;
 import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.makeup.MakeUpActivity;
+import com.het.facesdk.utils.OpenGlUtil;
 import com.megvii.licensemanager.sdk.LicenseManager;
 
 public class MainActivity extends SimpleBaseActivity {
@@ -29,6 +30,8 @@ public class MainActivity extends SimpleBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        OpenGlUtil.setUpRes(getResources());
+
         mArMakeup = findViewById(R.id.ar_makeup);
         mArMakeup.setOnClickListener(new View.OnClickListener() {
             @Override

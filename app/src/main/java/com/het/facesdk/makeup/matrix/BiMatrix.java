@@ -1,5 +1,6 @@
 package com.het.facesdk.makeup.matrix;
 
+import android.opengl.GLES20;
 import android.opengl.GLES30;
 
 import java.nio.FloatBuffer;
@@ -115,15 +116,23 @@ public class BiMatrix extends CommonMatrix {
     }
 
 
-
     @Override
     public void onSurfaceCreated() {
 
     }
 
     @Override
+    public void onSurfaceChanged(int w, int h) {
+        super.onSurfaceChanged(w, h);
+        setTexelSize(w, h);
+    }
+
+    @Override
     public void onFinishInit() {
         super.onFinishInit();
+        mDisFactorLocation = uniformLocation("distanceNormalizationFactor");
+        mSingleStepOffsetLocation = uniformLocation("singleStepOffset");
+        setDistanceNormalizationFactor(8.0f);
     }
 
     @Override
@@ -134,31 +143,14 @@ public class BiMatrix extends CommonMatrix {
     private float mDistanceNormalizationFactor;
     private int mDisFactorLocation;
     private int mSingleStepOffsetLocation;
-    private int mTextureLocation;
 
-//    public void setDistanceNormalizationFactor(final float newValue) {
-//        mDistanceNormalizationFactor = newValue;
-//        setFloat(mDisFactorLocation, newValue);
-//    }
-//
-//    private void setTexelSize(final float w, final float h) {
-//        GLES30.glUseProgram(program);
-//        setFloatVec2(mSingleStepOffsetLocation, new float[]{1.0f / w, 1.0f / h});
-//    }
-//
-//    private void setInt(final int location, final int value) {
-//        GLES30.glUseProgram(program);
-//        GLES30.glUniform1i(location, value);
-//    }
-//
-//    private void setFloat(final int location, final float floatValue) {
-//        GLES30.glUseProgram(program);
-//        GLES30.glUniform1f(location, floatValue);
-//    }
-//
-//    private void setFloatVec2(final int location, final float[] arrayValue) {
-//        GLES30.glUseProgram(program);
-//        GLES30.glUniform2fv(location, 1, FloatBuffer.wrap(arrayValue));
-//    }
+    public void setDistanceNormalizationFactor(final float newValue) {
+        mDistanceNormalizationFactor = newValue;
+        setFloat(mDisFactorLocation, newValue);
+    }
+
+    private void setTexelSize(final float w, final float h) {
+        setFloatVec2(mSingleStepOffsetLocation, new float[]{1.0f / w, 1.0f / h});
+    }
 
 }

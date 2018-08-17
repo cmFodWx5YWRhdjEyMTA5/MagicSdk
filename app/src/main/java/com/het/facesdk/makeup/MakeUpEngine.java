@@ -6,7 +6,9 @@ import android.opengl.GLES30;
 import android.util.Log;
 
 import com.het.facesdk.makeup.matrix.BiMatrix;
+import com.het.facesdk.makeup.matrix.BrightnessMatrix;
 import com.het.facesdk.makeup.matrix.CameraMatrix;
+import com.het.facesdk.makeup.matrix.LookUpMatrix;
 import com.het.facesdk.makeup.matrix.PosterizeMatrix;
 import com.het.facesdk.makeup.matrix.WindowMatrix;
 
@@ -26,6 +28,8 @@ public class MakeUpEngine {
     public static final int BILATERAL = CAMERA + 1;
     public static final int WINDOW = BILATERAL + 1;
     public static final int POSTERIZE = WINDOW + 1;
+    public static final int BRIGHTNESS = POSTERIZE + 1;
+    public static final int LOOKUP = BRIGHTNESS + 1;
 
     private static final String TAG = MakeUpEngine.class.getSimpleName();
     private static int[] gFrameBuf = new int[1];
@@ -45,6 +49,10 @@ public class MakeUpEngine {
                 return new PosterizeMatrix(gTexture[0]);
             case WINDOW:
                 return new WindowMatrix(gTexture[0]);
+            case BRIGHTNESS:
+                return new BrightnessMatrix(gTexture[0]);
+            case LOOKUP:
+                return new LookUpMatrix(gTexture[0]);
         }
         return null;
     }
@@ -60,7 +68,7 @@ public class MakeUpEngine {
          * 生成一个纹理对象
          */
         GLES30.glGenTextures(1, gTexture, 0);
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, gTexture[0]);
         GLES30.glTexParameterf(GLES20.GL_TEXTURE_2D,
                 GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -107,6 +115,7 @@ public class MakeUpEngine {
         gMatrixs.get(0).draw();
         GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
         gMatrixs.get(1).draw();
+//        gMatrixs.get(2).draw();
 //        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, gFrameBuf[0]);
 //        for (IMatrix matrix : gMatrixs) {
 //            matrix.draw();

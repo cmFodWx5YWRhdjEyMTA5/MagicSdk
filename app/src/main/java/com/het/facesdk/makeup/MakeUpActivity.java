@@ -18,6 +18,8 @@ import com.het.facesdk.R;
 import com.het.facesdk.SimpleBaseActivity;
 import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.makeup.matrix.BiMatrix;
+import com.het.facesdk.makeup.matrix.BrightnessMatrix;
+import com.het.facesdk.makeup.matrix.LookUpMatrix;
 import com.het.facesdk.makeup.matrix.PosterizeMatrix;
 import com.het.facesdk.utils.CameraUtil;
 import com.het.facesdk.utils.FilterUtil;
@@ -47,6 +49,8 @@ public class MakeUpActivity extends SimpleBaseActivity {
     private MakeUpEngine.IMatrix mCameraMatrix;
     private MakeUpEngine.IMatrix mBiMatrix;
     private MakeUpEngine.IMatrix mPosterizeMatrix;
+    private MakeUpEngine.IMatrix mBrightnessMatrix;
+    private MakeUpEngine.IMatrix mLookUpMatrix;
     private Camera mCamera;
     private Camera.Parameters mCamParm;
     private ByteBuffer mCameraBuffer;
@@ -69,10 +73,14 @@ public class MakeUpActivity extends SimpleBaseActivity {
                     @Override
                     public void run() {
                         Log.d(TAG, "onProgressChanged#" + progress);
+                        LookUpMatrix lookUpMatrix = (LookUpMatrix) mLookUpMatrix;
+                        lookUpMatrix.setIntensity(progress / 100.f);
 //                        BiMatrix matrix = (BiMatrix) mBiMatrix;
 //                        matrix.setDistanceNormalizationFactor(FilterUtil.range(progress, 0.0f, 15.0f));
-                        PosterizeMatrix posterizeMatrix = (PosterizeMatrix) mPosterizeMatrix;
-                        posterizeMatrix.setColorLevels(FilterUtil.range(progress, 1, 50));
+//                        PosterizeMatrix posterizeMatrix = (PosterizeMatrix) mPosterizeMatrix;
+//                        posterizeMatrix.setColorLevels(FilterUtil.range(progress, 1, 50));
+//                        BrightnessMatrix brightnessMatrix= (BrightnessMatrix) mBrightnessMatrix;
+//                        brightnessMatrix.setBrightness(FilterUtil.range(progress, -1.0f, 1.0f));
                     }
                 });
             }
@@ -134,13 +142,17 @@ public class MakeUpActivity extends SimpleBaseActivity {
             }
             final Camera.Size size = mCamParm.getPreviewSize();
 
-            MakeUpEngine.onSurfaceCreated(mGLSurfaceView.getMeasuredWidth(), mGLSurfaceView.getMeasuredWidth());
+            MakeUpEngine.onSurfaceCreated(size.width, size.height);
             mCameraMatrix = MakeUpEngine.create(MakeUpEngine.CAMERA);
+            mLookUpMatrix = MakeUpEngine.create(MakeUpEngine.LOOKUP);
 //            mBiMatrix = MakeUpEngine.create(MakeUpEngine.BILATERAL);
-            mPosterizeMatrix = MakeUpEngine.create(MakeUpEngine.POSTERIZE);
+//            mPosterizeMatrix = MakeUpEngine.create(MakeUpEngine.POSTERIZE);
+//            mBrightnessMatrix = MakeUpEngine.create(MakeUpEngine.BRIGHTNESS);
             MakeUpEngine.push(mCameraMatrix);
+            MakeUpEngine.push(mLookUpMatrix);
 //            MakeUpEngine.push(mBiMatrix);
-            MakeUpEngine.push(mPosterizeMatrix);
+//            MakeUpEngine.push(mPosterizeMatrix);
+//            MakeUpEngine.push(mBrightnessMatrix);
 
             mCameraBuffer = ByteBuffer.allocate(size.width * size.height * 3 / 2);
             mCamera.addCallbackBuffer(mCameraBuffer.array());

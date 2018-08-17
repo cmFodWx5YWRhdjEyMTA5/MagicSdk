@@ -16,14 +16,18 @@
 
 package com.het.facesdk.utils;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -42,15 +46,7 @@ public class OpenGlUtil {
         if (usedTexId == NO_TEXTURE) {
             GLES30.glGenTextures(1, textures, 0);
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textures[0]);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
-
+            useTexParameter();
             GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, img, 0);
         } else {
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, usedTexId);
@@ -68,14 +64,7 @@ public class OpenGlUtil {
         if (usedTexId == NO_TEXTURE) {
             GLES30.glGenTextures(1, textures, 0);
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textures[0]);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE);
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                    GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE);
+            useTexParameter();
             GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES30.GL_RGBA, size.width, size.height,
                     0, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, data);
         } else {
@@ -93,6 +82,17 @@ public class OpenGlUtil {
         return loadTexture(bitmap, usedTexId);
     }
 
+    public static void useTexParameter(){
+        //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);
+        //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);
+        //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);
+        //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
+        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);
+    }
+
     public static int loadShader(final String strSource, final int iType) {
         int[] compiled = new int[1];
         int iShader = GLES30.glCreateShader(iType);
@@ -100,7 +100,7 @@ public class OpenGlUtil {
         GLES30.glCompileShader(iShader);
         GLES30.glGetShaderiv(iShader, GLES30.GL_COMPILE_STATUS, compiled, 0);
         if (compiled[0] == 0) {
-            Log.d("Load Shader Failed", "Compilation\n" + GLES30.glGetShaderInfoLog(iShader));
+            Log.d("GLES#Load Shader Failed", "Compilation\n" + GLES30.glGetShaderInfoLog(iShader));
             return 0;
         }
         return iShader;
@@ -113,12 +113,12 @@ public class OpenGlUtil {
         int[] link = new int[1];
         iVShader = loadShader(strVSource, GLES30.GL_VERTEX_SHADER);
         if (iVShader == 0) {
-            Log.d("Load Program", "Vertex Shader Failed");
+            Log.d("GLES#Load Program", "Vertex Shader Failed");
             return 0;
         }
         iFShader = loadShader(strFSource, GLES30.GL_FRAGMENT_SHADER);
         if (iFShader == 0) {
-            Log.d("Load Program", "Fragment Shader Failed");
+            Log.d("GLES#Load Program", "Fragment Shader Failed");
             return 0;
         }
 
@@ -131,7 +131,7 @@ public class OpenGlUtil {
 
         GLES30.glGetProgramiv(iProgId, GLES30.GL_LINK_STATUS, link, 0);
         if (link[0] <= 0) {
-            Log.d("Load Program", "Linking Failed");
+            Log.d("GLES#Load Program", "Linking Failed");
             return 0;
         }
         GLES30.glDeleteShader(iVShader);
@@ -151,9 +151,9 @@ public class OpenGlUtil {
         GLES30.glGenBuffers(1, vbo, 0);
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo[0]);
         GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertexs.length * 4, vertexBuffer, GLES30.GL_STATIC_DRAW);
-        GLES30.glVertexAttribPointer(0, 2, GLES20.GL_FLOAT, false, 16, 0);
+        GLES30.glVertexAttribPointer(0, 2, GLES30.GL_FLOAT, false, 16, 0);
         GLES30.glEnableVertexAttribArray(0);
-        GLES30.glVertexAttribPointer(1, 2, GLES20.GL_FLOAT, false, 16, 8);
+        GLES30.glVertexAttribPointer(1, 2, GLES30.GL_FLOAT, false, 16, 8);
         GLES30.glEnableVertexAttribArray(1);
 
 
@@ -170,5 +170,35 @@ public class OpenGlUtil {
     public static float rnd(final float min, final float max) {
         float fRandNum = (float) Math.random();
         return min + (max - min) * fRandNum;
+    }
+
+    private static Resources mRes;
+
+    public static void setUpRes(Resources res) {
+        mRes = res;
+    }
+
+    public static String file2Glsl(String path) {
+        assert (mRes != null);
+        StringBuilder result = new StringBuilder();
+        try {
+            InputStream is = mRes.getAssets().open(path);
+            int ch;
+            byte[] buffer = new byte[1024];
+            while (-1 != (ch = is.read(buffer))) {
+                result.append(new String(buffer, 0, ch));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return result.toString().replaceAll("\\r\\n", "\n");
+    }
+
+    public static void texImage2D(String path) {
+        try {
+            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, BitmapFactory.decodeStream(mRes.getAssets().open(path)), 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
