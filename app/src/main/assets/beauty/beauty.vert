@@ -1,13 +1,13 @@
-attribute vec4 vPosition;
-attribute vec2 vCoord;
-varying vec2 textureCoordinate;
-varying vec2 blurCoord1s[14];
+#version 300 es
+layout (location = 0) in vec4 vPosition;
+layout (location = 1) in vec2 vCoord;
+out vec2 textureCoordinate;
+out vec2 blurCoord1s[14];
 const highp float mWidth=720.0;
 const highp float mHeight=1280.0;
-uniform mat4 vMatrix;
 void main( )
 {
-    gl_Position = vMatrix*vPosition;
+    gl_Position = vPosition;
     textureCoordinate = vCoord;
 
     highp float mul_x = 2.0 / mWidth;

@@ -1,5 +1,7 @@
 package com.het.facesdk.makeup.matrix;
 
+import com.het.facesdk.utils.FilterUtil;
+
 public class PosterizeMatrix extends CommonMatrix {
 
     private static final String TAG = PosterizeMatrix.class.getSimpleName();
@@ -43,4 +45,8 @@ public class PosterizeMatrix extends CommonMatrix {
         setFloat(mGLUniformColorLevels, colorLevels);
     }
 
+    @Override
+    public void control(int progress) {
+        setColorLevels(FilterUtil.range(progress, 1, 50));
+    }
 }

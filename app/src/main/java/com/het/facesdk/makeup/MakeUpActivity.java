@@ -51,6 +51,7 @@ public class MakeUpActivity extends SimpleBaseActivity {
     private MakeUpEngine.IMatrix mPosterizeMatrix;
     private MakeUpEngine.IMatrix mBrightnessMatrix;
     private MakeUpEngine.IMatrix mLookUpMatrix;
+    private MakeUpEngine.IMatrix mBeautyMatrix;
     private Camera mCamera;
     private Camera.Parameters mCamParm;
     private ByteBuffer mCameraBuffer;
@@ -73,8 +74,9 @@ public class MakeUpActivity extends SimpleBaseActivity {
                     @Override
                     public void run() {
                         Log.d(TAG, "onProgressChanged#" + progress);
-                        LookUpMatrix lookUpMatrix = (LookUpMatrix) mLookUpMatrix;
-                        lookUpMatrix.setIntensity(progress / 100.f);
+                        mBeautyMatrix.control(progress);
+//                        LookUpMatrix lookUpMatrix = (LookUpMatrix) mLookUpMatrix;
+//                        lookUpMatrix.setIntensity(progress / 100.f);
 //                        BiMatrix matrix = (BiMatrix) mBiMatrix;
 //                        matrix.setDistanceNormalizationFactor(FilterUtil.range(progress, 0.0f, 15.0f));
 //                        PosterizeMatrix posterizeMatrix = (PosterizeMatrix) mPosterizeMatrix;
@@ -145,11 +147,12 @@ public class MakeUpActivity extends SimpleBaseActivity {
             MakeUpEngine.onSurfaceCreated(size.width, size.height);
             mCameraMatrix = MakeUpEngine.create(MakeUpEngine.CAMERA);
             mLookUpMatrix = MakeUpEngine.create(MakeUpEngine.LOOKUP);
+            mBeautyMatrix = MakeUpEngine.create(MakeUpEngine.BEAUTY);
 //            mBiMatrix = MakeUpEngine.create(MakeUpEngine.BILATERAL);
 //            mPosterizeMatrix = MakeUpEngine.create(MakeUpEngine.POSTERIZE);
 //            mBrightnessMatrix = MakeUpEngine.create(MakeUpEngine.BRIGHTNESS);
             MakeUpEngine.push(mCameraMatrix);
-            MakeUpEngine.push(mLookUpMatrix);
+            MakeUpEngine.push(mBeautyMatrix);
 //            MakeUpEngine.push(mBiMatrix);
 //            MakeUpEngine.push(mPosterizeMatrix);
 //            MakeUpEngine.push(mBrightnessMatrix);

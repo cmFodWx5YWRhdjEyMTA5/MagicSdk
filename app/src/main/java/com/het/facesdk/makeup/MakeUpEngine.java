@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.util.Log;
 
+import com.het.facesdk.makeup.matrix.BeautyMatrix;
 import com.het.facesdk.makeup.matrix.BiMatrix;
 import com.het.facesdk.makeup.matrix.BrightnessMatrix;
 import com.het.facesdk.makeup.matrix.CameraMatrix;
@@ -30,6 +31,7 @@ public class MakeUpEngine {
     public static final int POSTERIZE = WINDOW + 1;
     public static final int BRIGHTNESS = POSTERIZE + 1;
     public static final int LOOKUP = BRIGHTNESS + 1;
+    public static final int BEAUTY = LOOKUP + 1;
 
     private static final String TAG = MakeUpEngine.class.getSimpleName();
     private static int[] gFrameBuf = new int[1];
@@ -53,6 +55,8 @@ public class MakeUpEngine {
                 return new BrightnessMatrix(gTexture[0]);
             case LOOKUP:
                 return new LookUpMatrix(gTexture[0]);
+            case BEAUTY:
+                return new BeautyMatrix(gTexture[0]);
         }
         return null;
     }
@@ -137,6 +141,9 @@ public class MakeUpEngine {
     }
 
     public interface IMatrix {
+
+        void control(int progress);
+
         void draw();
 
         int textureId();

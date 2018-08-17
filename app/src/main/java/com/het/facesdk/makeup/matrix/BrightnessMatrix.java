@@ -1,5 +1,7 @@
 package com.het.facesdk.makeup.matrix;
 
+import com.het.facesdk.utils.FilterUtil;
+
 public class BrightnessMatrix extends CommonMatrix {
 
 
@@ -39,5 +41,10 @@ public class BrightnessMatrix extends CommonMatrix {
     public void setBrightness(final float brightness) {
         mBrightness = brightness;
         setFloat(mBrightnessLocation, mBrightness);
+    }
+
+    @Override
+    public void control(int progress) {
+        setBrightness(FilterUtil.range(progress, -1.0f, 1.0f));
     }
 }

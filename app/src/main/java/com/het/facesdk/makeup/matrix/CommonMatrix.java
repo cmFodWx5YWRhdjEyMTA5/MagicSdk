@@ -60,15 +60,20 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
 
     public CommonMatrix(int textureId, float[] vertexs, String vertexGlsl, String fragGlsl) {
         mProgram = OpenGlUtil.loadProgram(vertexGlsl, fragGlsl);
-        GLES30.glUseProgram(mProgram);
         mVao = OpenGlUtil.genVAO(vertexs);
         mTextureId = textureId;
+        GLES30.glUseProgram(mProgram);
         onFinishInit();
     }
 
     @Override
     public int textureId() {
         return mTextureId;
+    }
+
+    @Override
+    public void control(int progress) {
+
     }
 
     @Override

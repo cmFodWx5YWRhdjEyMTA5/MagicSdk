@@ -70,5 +70,8 @@ public class LookUpMatrix extends CommonMatrix {
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
     }
 
-
+    @Override
+    public void control(int progress) {
+        setIntensity(progress / 100.f);
+    }
 }
