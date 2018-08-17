@@ -1,0 +1,23 @@
+#集成OPENGLDEMO工程注意事项
+
+##对于vert着色器
+
+1.把转化矩阵删除
+
+2.启用#version 300 es
+
+3.layout (location = x) 默认in变量
+
+4.varying 改为 out
+
+##对于frag着色器
+
+1.删除gl_FragColor,制定out_color
+
+2.输入纹理名字改为inputImageTexture
+
+3.texture2D方法改为texture
+
+4.varying 改为 in
+
+5.变量要加精度?
