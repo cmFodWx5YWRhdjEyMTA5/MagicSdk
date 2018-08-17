@@ -51,7 +51,7 @@ public class LookUpMatrix extends CommonMatrix {
     @Override
     public void onBindTexture() {
         super.onBindTexture();
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE2);//As mask
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE10);//As mask
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, maskTextures[0]);
         GLES30.glUniform1f(mHIntensity, intensity);
     }
@@ -61,12 +61,12 @@ public class LookUpMatrix extends CommonMatrix {
     }
 
     private void setUpMask() {
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE2);//As mask
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE10);//As mask
         GLES30.glGenTextures(1, maskTextures, 0);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, maskTextures[0]);
         OpenGlUtil.useTexParameter();
         OpenGlUtil.texImage2D("lookup/purity.png");
-        GLES30.glUniform1i(mHMaskImage, 2);
+        GLES30.glUniform1i(mHMaskImage, 10);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
     }
 
