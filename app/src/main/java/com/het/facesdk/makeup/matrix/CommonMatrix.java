@@ -87,6 +87,12 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
     }
 
     @Override
+    public void draw(int inputTexture) {
+        mTextureId = inputTexture;
+        draw();
+    }
+
+    @Override
     public void onSurfaceChanged(int w, int h) {
         GLES30.glViewport(0, 0, w, h);
     }
