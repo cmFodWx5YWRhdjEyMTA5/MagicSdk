@@ -148,8 +148,10 @@ public class MakeUpActivity extends SimpleBaseActivity {
             mCameraMatrix = MakeUpEngine.create(MakeUpEngine.CAMERA);
             mLookUpMatrix = MakeUpEngine.create(MakeUpEngine.LOOKUP);
             mBeautyMatrix = MakeUpEngine.create(MakeUpEngine.BEAUTY);
+            mPosterizeMatrix = MakeUpEngine.create(MakeUpEngine.POSTERIZE);
             MakeUpEngine.push(mCameraMatrix);
             MakeUpEngine.push(mLookUpMatrix);
+//            MakeUpEngine.push(mPosterizeMatrix);
             MakeUpEngine.push(mBeautyMatrix);
             MakeUpEngine.push(MakeUpEngine.innerWindowMatrix());
 
