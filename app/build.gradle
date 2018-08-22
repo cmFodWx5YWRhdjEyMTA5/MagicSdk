@@ -19,6 +19,11 @@ android {
             abiFilters "armeabi-v7a"
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

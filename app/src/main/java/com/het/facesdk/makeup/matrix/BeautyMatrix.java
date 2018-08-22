@@ -2,7 +2,7 @@ package com.het.facesdk.makeup.matrix;
 
 import android.opengl.GLES20;
 
-import com.het.facesdk.utils.OpenGlUtil;
+import com.het.facesdk.utils.OpenGlUtils;
 
 /**
  * 美白
@@ -27,8 +27,8 @@ public class BeautyMatrix extends CommonMatrix {
 
     public BeautyMatrix(int textureId) {
         super(textureId,
-                OpenGlUtil.file2Glsl("beauty/beauty.vert"),
-                OpenGlUtil.file2Glsl("beauty/beauty.frag"));
+                OpenGlUtils.file2Glsl("beauty/beauty.vert"),
+                OpenGlUtils.file2Glsl("beauty/beauty.frag"));
     }
 
     @Override
@@ -44,8 +44,8 @@ public class BeautyMatrix extends CommonMatrix {
     }
 
     @Override
-    public void onBindTexture() {
-        super.onBindTexture();
+    public void onPreDraw() {
+        super.onPreDraw();
         GLES20.glUniform1i(gHWidth, mWidth);
         GLES20.glUniform1i(gHHeight, mHeight);
         GLES20.glUniform1f(gHaaCoef, aaCoef);

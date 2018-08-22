@@ -2,7 +2,7 @@ package com.het.facesdk.makeup.matrix;
 
 import android.opengl.GLES30;
 
-import com.het.facesdk.utils.OpenGlUtil;
+import com.het.facesdk.utils.OpenGlUtils;
 
 /**
  * 默认GL_TEXTURE10
@@ -21,8 +21,8 @@ public class LookUpMatrix extends CommonMatrix {
 
     public LookUpMatrix(int textureId) {
         super(textureId,
-                OpenGlUtil.file2Glsl("lookup/lookup.vert"),
-                OpenGlUtil.file2Glsl("lookup/lookup.frag"));
+                OpenGlUtils.file2Glsl("lookup/lookup.vert"),
+                OpenGlUtils.file2Glsl("lookup/lookup.frag"));
     }
 
 //    public static final float[] LOOKUP_VERTEXS = new float[]{
@@ -49,8 +49,8 @@ public class LookUpMatrix extends CommonMatrix {
     }
 
     @Override
-    public void onBindTexture() {
-        super.onBindTexture();
+    public void onPreDraw() {
+        super.onPreDraw();
         GLES30.glActiveTexture(GLES30.GL_TEXTURE10);//As mask
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, maskTextures[0]);
         GLES30.glUniform1f(mHIntensity, intensity);
@@ -64,8 +64,8 @@ public class LookUpMatrix extends CommonMatrix {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE10);//As mask
         GLES30.glGenTextures(1, maskTextures, 0);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, maskTextures[0]);
-        OpenGlUtil.useTexParameter();
-        OpenGlUtil.texImage2D("lookup/purity.png");
+        OpenGlUtils.useTexParameter();
+        OpenGlUtils.texImage2D("lookup/purity.png");
         GLES30.glUniform1i(mHMaskImage, 10);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
     }

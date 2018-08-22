@@ -12,7 +12,7 @@ import com.het.facesdk.makeup.matrix.CameraMatrix;
 import com.het.facesdk.makeup.matrix.LookUpMatrix;
 import com.het.facesdk.makeup.matrix.PosterizeMatrix;
 import com.het.facesdk.makeup.matrix.WindowMatrix;
-import com.het.facesdk.utils.OpenGlUtil;
+import com.het.facesdk.utils.OpenGlUtils;
 
 import java.util.LinkedList;
 
@@ -83,7 +83,7 @@ public class MakeUpEngine {
         for (int i = 0; i < BUFFER_NUM; i++) {
             GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
             GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, gFrameBufferColorTextures[i]);
-            OpenGlUtil.useTexParameter();
+            OpenGlUtils.useTexParameter();
             if (width > height) {
                 GLES30.glTexImage2D(GLES30.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, height, width, 0, GLES20.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, null);
             } else {

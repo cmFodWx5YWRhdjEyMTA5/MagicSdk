@@ -4,7 +4,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
 
 import com.het.facesdk.makeup.MakeUpEngine;
-import com.het.facesdk.utils.OpenGlUtil;
+import com.het.facesdk.utils.OpenGlUtils;
 
 import java.nio.FloatBuffer;
 
@@ -59,8 +59,8 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
     }
 
     public CommonMatrix(int textureId, float[] vertexs, String vertexGlsl, String fragGlsl) {
-        mProgram = OpenGlUtil.loadProgram(vertexGlsl, fragGlsl);
-        mVao = OpenGlUtil.genVAO(vertexs);
+        mProgram = OpenGlUtils.loadProgram(vertexGlsl, fragGlsl);
+        mVao = OpenGlUtils.genVAO(vertexs);
         mTextureId = textureId;
         GLES30.glUseProgram(mProgram);
         onFinishInit();
@@ -80,7 +80,7 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
     public void draw() {
         GLES30.glUseProgram(mProgram);
         GLES30.glBindVertexArray(mVao);
-        onBindTexture();
+        onPreDraw();
         GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 6);
         GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
@@ -106,7 +106,7 @@ public class CommonMatrix implements MakeUpEngine.IMatrix {
         mTextureLocation = uniformLocation("inputImageTexture");
     }
 
-    public void onBindTexture() {
+    public void onPreDraw() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE1);
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, textureId());
         GLES30.glUniform1i(mTextureLocation, 1);

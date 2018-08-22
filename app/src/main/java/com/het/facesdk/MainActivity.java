@@ -11,7 +11,7 @@ import android.widget.Toast;
 import com.het.facesdk.core.FaceThreadManager;
 import com.het.facesdk.facepp.FaceppEngine;
 import com.het.facesdk.makeup.MakeUpActivity;
-import com.het.facesdk.utils.OpenGlUtil;
+import com.het.facesdk.utils.OpenGlUtils;
 import com.megvii.licensemanager.sdk.LicenseManager;
 
 public class MainActivity extends SimpleBaseActivity {
@@ -22,6 +22,12 @@ public class MainActivity extends SimpleBaseActivity {
 
     static {
         System.loadLibrary("native-lib");
+        System.loadLibrary("athena");
+        System.loadLibrary("diana");
+        System.loadLibrary("perfect");
+        System.loadLibrary("venus");
+//        System.loadLibrary("crashlytics-envelope");
+//        System.loadLibrary("crashlytics");
     }
 
     private View mArMakeup;
@@ -30,7 +36,7 @@ public class MainActivity extends SimpleBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        OpenGlUtil.setUpRes(getResources());
+        OpenGlUtils.setUpRes(getResources());
 
         mArMakeup = findViewById(R.id.ar_makeup);
         mArMakeup.setOnClickListener(new View.OnClickListener() {

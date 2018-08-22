@@ -1,10 +1,5 @@
 package com.het.facesdk.makeup.matrix;
 
-import android.opengl.GLES20;
-import android.opengl.GLES30;
-
-import java.nio.FloatBuffer;
-
 public class BiMatrix extends CommonMatrix {
     private static final String TAG = BiMatrix.class.getSimpleName();
 
@@ -136,8 +131,8 @@ public class BiMatrix extends CommonMatrix {
     }
 
     @Override
-    public void onBindTexture() {
-        super.onBindTexture();
+    public void onPreDraw() {
+        super.onPreDraw();
     }
 
     private float mDistanceNormalizationFactor;

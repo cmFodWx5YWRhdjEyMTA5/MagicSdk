@@ -9,6 +9,7 @@ public class CameraMatrix extends CommonMatrix {
     private static final String FRAG_SHADER_GLSL =
             "# version 300 es\n" +
                     "#extension GL_OES_EGL_image_external: require\n" +
+//                    "#extension GL_OES_EGL_image_external_essl3: require\n" +
                     "precision mediump float;\n" +
                     "uniform samplerExternalOES camera_texture;\n" +
                     "in lowp vec2 textureCoordinate;\n" +
@@ -43,7 +44,7 @@ public class CameraMatrix extends CommonMatrix {
     }
 
     @Override
-    public void onBindTexture() {
+    public void onPreDraw() {
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
         GLES30.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId());
         GLES30.glUniform1i(mCameraTextureLocation, 0);
