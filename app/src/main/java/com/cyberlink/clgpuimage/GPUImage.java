@@ -71,7 +71,7 @@ public class GPUImage {
 
         mContext = context;
         mFilter = new GPUImageFilter();
-        mRenderer = new GPUImageRenderer(mFilter);
+        mRenderer = new GPUImageRenderer(mFilter, mContext);
     }
 
     /**
@@ -304,7 +304,7 @@ public class GPUImage {
             }
         }
 
-        GPUImageRenderer renderer = new GPUImageRenderer(mFilter);
+        GPUImageRenderer renderer = new GPUImageRenderer(mFilter, mContext);
         renderer.setRotation(Rotation.NORMAL,
                 mRenderer.isFlippedHorizontally(), mRenderer.isFlippedVertically());
         renderer.setScaleType(mScaleType);
@@ -341,7 +341,7 @@ public class GPUImage {
         if (filters.isEmpty()) {
             return;
         }
-        GPUImageRenderer renderer = new GPUImageRenderer(filters.get(0));
+        GPUImageRenderer renderer = new GPUImageRenderer(filters.get(0), null);
         renderer.setImageBitmap(bitmap, false);
         PixelBuffer buffer = new PixelBuffer(bitmap.getWidth(), bitmap.getHeight());
         buffer.setRenderer(renderer);
@@ -357,8 +357,8 @@ public class GPUImage {
 
     /**
      * Deprecated: Please use
-     * <p>
-     * <p>
+     * <mBlendWeightBuffer>
+     * <mBlendWeightBuffer>
      * Save current image with applied filter to Pictures. It will be stored on
      * the default Picture folder on the phone below the given folderName and
      * fileName. <br>
@@ -377,8 +377,8 @@ public class GPUImage {
 
     /**
      * Deprecated: Please use
-     * <p>
-     * <p>
+     * <mBlendWeightBuffer>
+     * <mBlendWeightBuffer>
      * Apply and save the given bitmap with applied filter to Pictures. It will
      * be stored on the default Picture folder on the phone below the given
      * folerName and fileName. <br>

@@ -17,8 +17,10 @@
 package com.cyberlink.clgpuimage;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
@@ -26,8 +28,10 @@ import android.hardware.Camera.Size;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.Renderer;
+import android.util.Log;
 
 import com.cyberlink.clgpuimage.util.TextureRotationUtil;
+import com.het.facesdk.makeup.BeautyManager;
 import com.het.facesdk.utils.OpenGlUtils;
 
 import java.io.IOException;
@@ -46,6 +50,7 @@ import static com.cyberlink.clgpuimage.util.TextureRotationUtil.TEXTURE_NO_ROTAT
 
 @TargetApi(11)
 public class GPUImageRenderer implements Renderer, PreviewCallback {
+    private static final String TAG = "GPUImageRender";
     public static final int NO_IMAGE = -1;
     static final float CUBE[] = {
             -1.0f, -1.0f,
@@ -81,7 +86,13 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     private float mBackgroundGreen = 0;
     private float mBackgroundBlue = 0;
 
-    public GPUImageRenderer(final GPUImageFilter filter) {
+    private BeautyManager mBeautyManager;
+    private Context mContext;
+
+    public GPUImageRenderer(final GPUImageFilter filter, Context context) {
+
+        mContext = context;
+
         mFilter = filter;
         mRunOnDraw = new LinkedList<Runnable>();
         mRunOnDrawEnd = new LinkedList<Runnable>();
@@ -99,6 +110,9 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
 
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
+//        if (mContext != null) {
+//            mBeautyManager = BeautyManager.getInstance(mContext);
+//        }
         GLES20.glClearColor(mBackgroundRed, mBackgroundGreen, mBackgroundBlue, 1);
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);
         mFilter.init();
@@ -131,9 +145,9 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     /**
      * Sets the background color
      *
-     * @param red red color value
+     * @param red   red color value
      * @param green green color value
-     * @param blue red color value
+     * @param blue  red color value
      */
     public void setBackgroundColor(float red, float green, float blue) {
         mBackgroundRed = red;
@@ -150,9 +164,16 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     }
 
 
+    Rect rect = new Rect();
+
     @Override
     public void onPreviewFrame(final byte[] data, final Camera camera) {
-//        final Size previewSize = camera.getParameters().getPreviewSize();
+
+
+        final Size previewSize = camera.getParameters().getPreviewSize();
+        BeautyManager.getInstance(mContext).sendFrameBuffer(data, previewSize.width, previewSize.height, 90, true);
+        boolean result = BeautyManager.getInstance(mContext).getFaceRect(rect);
+        Log.d(TAG, result + "");
 //        if (mGLRgbBuffer == null) {
 //            mGLRgbBuffer = IntBuffer.allocate(previewSize.width * previewSize.height);
 //        }
@@ -326,7 +347,7 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     }
 
     public void setRotationCamera(final Rotation rotation, final boolean flipHorizontal,
-            final boolean flipVertical) {
+                                  final boolean flipVertical) {
         setRotation(rotation, flipVertical, flipHorizontal);
     }
 

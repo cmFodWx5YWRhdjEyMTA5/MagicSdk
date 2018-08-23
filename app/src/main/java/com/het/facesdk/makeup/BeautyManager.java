@@ -3,6 +3,7 @@ package com.het.facesdk.makeup;
 import android.content.Context;
 import android.util.Log;
 
+import com.cyberlink.clgpuimage.CLMakeupLiveLipStickFilter;
 import com.cyberlink.youcammakeup.jniproxy.CUIVenus;
 import com.het.facesdk.core.FaceThreadManager;
 
@@ -26,6 +27,7 @@ public class BeautyManager {
                 if (mBeautyManager == null) {
                     mBeautyManager = new BeautyManager();
                     mBeautyManager.mContext = context;
+//                    mBeautyManager.initFace();
                     FaceThreadManager.getInstance().excute(mBeautyManager.mInitCUIVenus);
                 }
             }
@@ -33,21 +35,42 @@ public class BeautyManager {
         return mBeautyManager;
     }
 
+    private void initFace(){
+        Log.d(TAG, "FileDir#" + cacheRoot());
+        mCUIVenus = new CUIVenus(mContext.getApplicationInfo().nativeLibraryDir,
+                modelInit("model/Davinci.cade"),
+                modelInit("model/Venus.regressor"),
+                modelInit("model/Venus.classifier"));
+        mCUIVenus.CUIVenus_setIsHoudini(false);
+        mCUIVenus.CUIVenus_SetUserProfileFolder(cacheRoot());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        boolean isLoadSuccess = mCUIVenus.CUIVenus_IsModelLoaded();
+        Log.d(TAG, "CUIVenus_IsModelLoaded#" + isLoadSuccess);
+        if (mCUIVenus.CUIVenus_IsModelLoaded()) {
+            boolean isMakeUpInit = mCUIVenus.CUIVenus_MakeupLiveInitialize();
+            Log.d(TAG, "MakeUpInit#" + isMakeUpInit);
+        }
+        Log.d(TAG, mCUIVenus.toString());
+    }
+
     private Runnable mInitCUIVenus = new Runnable() {
         @Override
         public void run() {
-            mCUIVenus = new CUIVenus(mContext.getApplicationInfo().nativeLibraryDir,
-                    modelInit("model/Davinci.cade"),
-                    modelInit("model/Venus.regressor"),
-                    modelInit("model/Venus.classifier"));
-            Log.d(TAG, mCUIVenus.toString());
+           initFace();
         }
     };
 
+    private String cacheRoot() {
+        return mContext.getFilesDir().getAbsolutePath() + "/";
+    }
 
     private String modelInit(String tPath) {
         String modePath = tPath;
-        String targetPath = mContext.getFilesDir().getAbsolutePath() + "/" + tPath.split("/")[1];
+        String targetPath = cacheRoot() + tPath.split("/")[1];
         File cadeFile = new File(targetPath);
         if (!cadeFile.exists()) {
             try {
@@ -78,8 +101,19 @@ public class BeautyManager {
         mCUIVenus.CUIVenus_SendFrameBuffer(data, w, h, roi, isFront);
     }
 
+//    public boolean getMakeupMeta(){
+//        return mCUIVenus.CUIVenus_GetMakeupMetadata();
+//    }
+
     public void setLipStick(Object object) {
         mCUIVenus.CUIVenus_SetLipstickProfile(object);
+    }
+
+    public boolean getFaceRect(Object object) {
+        if (mCUIVenus == null) {
+            return false;
+        }
+        return mCUIVenus.CUIVenus_GetFaceRectangle(object);
     }
 
 

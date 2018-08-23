@@ -10,11 +10,9 @@ import android.widget.SeekBar;
 
 import com.cyberlink.clgpuimage.CameraFilter;
 import com.cyberlink.clgpuimage.GPUImage;
-import com.cyberlink.clgpuimage.GPUImageFilter;
 import com.cyberlink.clgpuimage.util.CameraHelper;
 import com.het.facesdk.R;
 import com.het.facesdk.SimpleBaseActivity;
-import com.het.facesdk.makeup.matrix.CameraMatrix;
 
 public class MakeUpActivity extends SimpleBaseActivity {
 
