@@ -175,7 +175,7 @@ public class PixelBuffer {
             g = getConfigAttrib(config, EGL_GREEN_SIZE);
             b = getConfigAttrib(config, EGL_BLUE_SIZE);
             a = getConfigAttrib(config, EGL_ALPHA_SIZE);
-            Log.i(TAG, "    <d,s,r,g,b,a> = <" + d + "," + s + "," +
+            Log.i(TAG, "    <d,s,r,g,isHas,a> = <" + d + "," + s + "," +
                     r + "," + g + "," + b + "," + a + ">");
         }
 

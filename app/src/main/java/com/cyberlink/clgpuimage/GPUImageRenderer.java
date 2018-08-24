@@ -101,6 +101,7 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     public GPUImageRenderer(final GPUImageFilter filter, Context context) {
 
         mContext = context;
+        mBeautyManager = BeautyManager.getInstance(mContext);
 
         mCameraFilter = new CameraFilter();
         mFilter = filter;
@@ -244,7 +245,17 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
         boolean result = BeautyManager.getInstance(mContext).getFaceRect(rect);
         Log.d(TAG, result + "");
         if (result) {
-            BeautyManager.getInstance(mContext).getMakeUpData();
+            if (mFilter instanceof CLMakeupLiveFilter) {
+                mBeautyManager.getMakeUpData();
+                CLMakeupLiveFilter clMakeupLiveFilter = (CLMakeupLiveFilter) mFilter;
+                clMakeupLiveFilter.handleData(mBeautyManager.liveEyeMakeupMetadata, mBeautyManager.lipstickData, mBeautyManager.liveBlushMakeupdata, mBeautyManager.liveSmoothMetadata, mBeautyManager.liveFrameInformation);
+                clMakeupLiveFilter.setHasData(true);
+            }
+        }else {
+            if(mFilter instanceof CLMakeupLiveFilter){
+                CLMakeupLiveFilter clMakeupLiveFilter = (CLMakeupLiveFilter) mFilter;
+                clMakeupLiveFilter.setHasData(false);
+            }
         }
     }
 

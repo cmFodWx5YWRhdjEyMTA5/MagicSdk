@@ -67,10 +67,11 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     }
 
     private boolean mEnableSmooth;
-    private FeatureHolder mFeatureHolder;
+    private FeatureHolder mCurrentFeatureHolder;
+    private FeatureHolder mNewFeatureHolder;
     private LiveEyeMakeupMetadata[] liveEyeMakeupMetaData;
-    private LipstickData lipstickData;
-    private LiveBlushMakeupdata liveBlushMakeupData;
+    private LipstickData mLipstickData;
+    private LiveBlushMakeupdata mLiveBlushMakeupData;
     private LiveSmoothMetadata liveSmoothMetaData;
     private LiveFrameInformation liveFrameInfomation;
 
@@ -86,7 +87,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     private float darkestLuma;
     private float brightestLuma;
     private final Object mDataLock;
-    private final Object y;
+    private final Object mSetDataLock;
 
 
     public CLMakeupLiveFilter() {
@@ -100,17 +101,18 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     public CLMakeupLiveFilter(boolean eyeLinear, boolean eyeShadow, boolean lipStick, boolean smooth, boolean blush, boolean eyelash) {
 
         mDataLock = new Object();
-        y = new Object();
+        mSetDataLock = new Object();
         mFilters = new ArrayList<>();
 
 
-        mFeatureHolder = new FeatureHolder(this);
-        mFeatureHolder.features[EYELINER] = eyeLinear;
-        mFeatureHolder.features[EYESHADOW] = eyeShadow;
-        mFeatureHolder.features[LIPSTICK] = lipStick;
-        mFeatureHolder.features[SMOOTH] = smooth;
-        mFeatureHolder.features[BLUSH] = blush;
-        mFeatureHolder.features[EYELASH] = eyelash;
+        mCurrentFeatureHolder = new FeatureHolder(this);
+        mNewFeatureHolder = new FeatureHolder(this);
+        mCurrentFeatureHolder.features[EYELINER] = eyeLinear;
+        mCurrentFeatureHolder.features[EYESHADOW] = eyeShadow;
+        mCurrentFeatureHolder.features[LIPSTICK] = lipStick;
+        mCurrentFeatureHolder.features[SMOOTH] = smooth;
+        mCurrentFeatureHolder.features[BLUSH] = blush;
+        mCurrentFeatureHolder.features[EYELASH] = eyelash;
 
 
         clMakeupLiveSmotthFilter = new CLMakeupLiveSmoothFilter();
@@ -123,8 +125,8 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         liveEyeMakeupMetaData = new LiveEyeMakeupMetadata[2];
         liveEyeMakeupMetaData[0] = new LiveEyeMakeupMetadata();
         liveEyeMakeupMetaData[1] = new LiveEyeMakeupMetadata();
-        lipstickData = new LipstickData();
-        liveBlushMakeupData = new LiveBlushMakeupdata();
+        mLipstickData = new LipstickData();
+        mLiveBlushMakeupData = new LiveBlushMakeupdata();
         liveSmoothMetaData = new LiveSmoothMetadata();
         liveFrameInfomation = new LiveFrameInformation();
     }
@@ -167,32 +169,47 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     @Override
     public void onDraw(int textureId, FloatBuffer cubeBuffer, FloatBuffer textureBuffer) {
 //        super.onDraw(textureId, cubeBuffer, textureBuffer);
-        synchronized (mDataLock) {
-            freshData();
+//        synchronized (mDataLock) {
+//            freshData();
+//        }
+
+        synchronized (this.mSetDataLock) {
+            this.mCurrentFeatureHolder.isHas = this.mNewFeatureHolder.isHas;
+//            this.mCurrentFeatureHolder.features = this.mNewFeatureHolder.features.clone();
+//            this.mCurrentFeatureHolder.captureFrameType = this.mNewFeatureHolder.captureFrameType;
+//            this.mNewFeatureHolder.captureFrameType = CaptureFrameType.NONE;
         }
+
 
         IntBuffer bindingBuffer = IntBuffer.allocate(1);
         GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, bindingBuffer);
         IntBuffer viewPortBuffer = IntBuffer.allocate(4);
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewPortBuffer);
 
-        mFilters.clear();
-        if (mFeatureHolder.features[EYELINER] ||
-                mFeatureHolder.features[EYESHADOW] ||
-                mFeatureHolder.features[LIPSTICK] ||
-                mFeatureHolder.features[SMOOTH] ||
-                mFeatureHolder.features[BLUSH] ||
-                mFeatureHolder.features[EYELASH]) {
+        synchronized (this.mDataLock) {
+            if (mCurrentFeatureHolder.isHas) {
+                freshData();
+            }
+        }
 
-            if (mFeatureHolder.features[SMOOTH]) {
+        if (mCurrentFeatureHolder.isHas) {
+            mFilters.clear();
+            if (mCurrentFeatureHolder.features[EYELINER] ||
+                    mCurrentFeatureHolder.features[EYESHADOW] ||
+                    mCurrentFeatureHolder.features[LIPSTICK] ||
+                    mCurrentFeatureHolder.features[SMOOTH] ||
+                    mCurrentFeatureHolder.features[BLUSH] ||
+                    mCurrentFeatureHolder.features[EYELASH]) {
+
+                if (mCurrentFeatureHolder.features[SMOOTH]) {
 //                mFilters.add(clMakeupLiveSmotthFilter);
-            }
-            if (mFeatureHolder.features[BLUSH]) {
+                }
+                if (mCurrentFeatureHolder.features[BLUSH]) {
 //                mFilters.add(clMakeupLiveBlushFilter);
-            }
-            if (mFeatureHolder.features[EYELINER] ||
-                    mFeatureHolder.features[EYESHADOW] ||
-                    mFeatureHolder.features[EYELASH]) {
+                }
+                if (mCurrentFeatureHolder.features[EYELINER] ||
+                        mCurrentFeatureHolder.features[EYESHADOW] ||
+                        mCurrentFeatureHolder.features[EYELASH]) {
 
 //                if (i4 == 1) {
 //                    mFilters.add(n);
@@ -205,31 +222,50 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 //                } else {
 //                    mFilters.add(clMakeupLiveEyeFilterRight);
 //                }
-            }
-            if (mFeatureHolder.features[LIPSTICK]) {
-//                mFilters.add(clMakeupLiveLipStickFilter);
+                }
+                if (mCurrentFeatureHolder.features[LIPSTICK]) {
+                    mFilters.add(clMakeupLiveLipStickFilter);
+                }
+
             }
 
+//            mFilters.add(mWindowFilter);
 
+            int size = mFilters.size();
+            for (int i = 0; i < size; i++) {
+                if (i == size - 1) {
+                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bindingBuffer.get(0));
+                    GLES20.glViewport(viewPortBuffer.get(0), viewPortBuffer.get(1), viewPortBuffer.get(2), viewPortBuffer.get(3));
+                } else {
+                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
+                    GLES20.glViewport(0, 0, getOutputWidth(), getOutputHeight());
+                }
+                if (i == 0) {
+                    mFilters.get(i).onDraw(textureId, cubeBuffer, textureBuffer);
+                } else {
+                    mFilters.get(i).onDraw(mFrameColorTextures[i - 1], cubeBuffer, textureBuffer);
+                }
+            }
+        } else {
+            mFilters.clear();
+            mFilters.add(mWindowFilter);
+            int size = mFilters.size();
+            for (int i = 0; i < size; i++) {
+                if (i == size - 1) {
+                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bindingBuffer.get(0));
+                    GLES20.glViewport(viewPortBuffer.get(0), viewPortBuffer.get(1), viewPortBuffer.get(2), viewPortBuffer.get(3));
+                } else {
+                    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
+                    GLES20.glViewport(0, 0, getOutputWidth(), getOutputHeight());
+                }
+                if (i == 0) {
+                    mFilters.get(i).onDraw(textureId, cubeBuffer, textureBuffer);
+                } else {
+                    mFilters.get(i).onDraw(mFrameColorTextures[i - 1], cubeBuffer, textureBuffer);
+                }
+            }
         }
 
-        mFilters.add(mWindowFilter);
-
-        int size = mFilters.size();
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, bindingBuffer.get(0));
-                GLES20.glViewport(viewPortBuffer.get(0), viewPortBuffer.get(1), viewPortBuffer.get(2), viewPortBuffer.get(3));
-            } else {
-                GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
-                GLES20.glViewport(0, 0, getOutputWidth(), getOutputHeight());
-            }
-            if (i == 0) {
-                mFilters.get(i).onDraw(textureId, cubeBuffer, textureBuffer);
-            } else {
-                mFilters.get(i).onDraw(mFrameColorTextures[i - 1], cubeBuffer, textureBuffer);
-            }
-        }
 
     }
 
@@ -243,8 +279,8 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
             GLES20.glGenFramebuffers(1, mFrameBuffers, i);
             GLES20.glGenTextures(1, mFrameColorTextures, i);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mFrameColorTextures[i]);
-            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, w, h, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             OpenGlUtils.useTexParameter();
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, w, h, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
             GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, mFrameColorTextures[i], 0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
@@ -263,14 +299,20 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         }
     }
 
+    public void setHasData(boolean isHas) {
+        synchronized (mSetDataLock) {
+            mNewFeatureHolder.isHas = isHas;
+        }
+    }
+
     public void handleData(LiveEyeMakeupMetadata[] liveEyeMakeupMetadataArr, LipstickData lipstickData,
                            LiveBlushMakeupdata liveBlushMakeupdata, LiveSmoothMetadata liveSmoothMetadata,
                            LiveFrameInformation liveFrameInformation) {
         synchronized (mDataLock) {
             liveEyeMakeupMetaData[0].Copy(liveEyeMakeupMetadataArr[0]);
             liveEyeMakeupMetaData[1].Copy(liveEyeMakeupMetadataArr[1]);
-            lipstickData.Copy(lipstickData);
-            liveBlushMakeupData.Copy(liveBlushMakeupdata);
+            mLipstickData.Copy(lipstickData);
+            mLiveBlushMakeupData.Copy(liveBlushMakeupdata);
             liveSmoothMetaData.Copy(liveSmoothMetadata);
             liveFrameInfomation.Copy(liveFrameInformation);
             darkestLuma = liveSmoothMetadata.m_environment_darkest_reference_normalized_luma;
@@ -281,21 +323,21 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 
     private void freshData() {
         synchronized (mDataLock) {
-            if (mFeatureHolder.features[EYELINER] ||
-                    mFeatureHolder.features[EYESHADOW] ||
-                    mFeatureHolder.features[EYELASH]) {
+            if (mCurrentFeatureHolder.features[EYELINER] ||
+                    mCurrentFeatureHolder.features[EYESHADOW] ||
+                    mCurrentFeatureHolder.features[EYELASH]) {
 //                clMakeupLiveEyeFilterLeft.a(liveEyeMakeupMetaData[0]);
 //                clMakeupLiveEyeFilterRight.a(liveEyeMakeupMetaData[1]);
 //                n.a(liveEyeMakeupMetaData[0]);
 //                o.a(liveEyeMakeupMetaData[1]);
             }
-            if (mFeatureHolder.features[LIPSTICK]) {
-//                clMakeupLiveLipStickFilter.freshData(lipstickData);
+            if (mCurrentFeatureHolder.features[LIPSTICK]) {
+                clMakeupLiveLipStickFilter.freshData(mLipstickData);
             }
-            if (mFeatureHolder.features[BLUSH]) {
-//                clMakeupLiveBlushFilter.a(liveBlushMakeupData);
+            if (mCurrentFeatureHolder.features[BLUSH]) {
+//                clMakeupLiveBlushFilter.a(mLiveBlushMakeupData);
             }
-            if (mFeatureHolder.features[SMOOTH]) {
+            if (mCurrentFeatureHolder.features[SMOOTH]) {
 //                clMakeupLiveSmotthFilter.a(liveSmoothMetaData);
             }
         }

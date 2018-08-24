@@ -3,7 +3,7 @@ package com.cyberlink.clgpuimage;
 public class FeatureHolder {
 
     private CLMakeupLiveFilter clMakeupLiveFilter;
-    public boolean b;
+    public boolean isHas;
     public boolean[] features;
     public CLMakeupLiveFilter.CaptureFrameType captureFrameType;
 
