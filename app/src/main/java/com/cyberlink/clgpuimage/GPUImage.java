@@ -16,7 +16,6 @@
 
 package com.cyberlink.clgpuimage;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
@@ -26,13 +25,11 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PixelFormat;
-import android.hardware.Camera;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -64,13 +61,13 @@ public class GPUImage {
      *
      * @param context the context
      */
-    public GPUImage(final Context context) {
+    public GPUImage(final Context context,GPUImageFilter gpuImageFilter) {
         if (!supportsOpenGLES2(context)) {
             throw new IllegalStateException("OpenGL ES 2.0 is not supported on this phone.");
         }
 
         mContext = context;
-        mFilter = new GPUImageFilter();
+        mFilter = gpuImageFilter;
         mRenderer = new GPUImageRenderer(mFilter, mContext);
     }
 
@@ -101,6 +98,8 @@ public class GPUImage {
         mGlSurfaceView.setRenderer(mRenderer);
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         mGlSurfaceView.requestRender();
+
+        mRenderer.setGLSurfaceView(mGlSurfaceView);
     }
 
     /**
@@ -123,51 +122,6 @@ public class GPUImage {
         }
     }
 
-    /**
-     * Sets the up camera to be connected to GPUImage to get a filtered preview.
-     *
-     * @param camera the camera
-     */
-    public void setUpCamera(final Camera camera) {
-        setUpCamera(camera, 0, false, false);
-    }
-
-    /**
-     * Sets the up camera to be connected to GPUImage to get a filtered preview.
-     *
-     * @param camera         the camera
-     * @param degrees        by how many degrees the image should be rotated
-     * @param flipHorizontal if the image should be flipped horizontally
-     * @param flipVertical   if the image should be flipped vertically
-     */
-    public void setUpCamera(final Camera camera, final int degrees, final boolean flipHorizontal,
-                            final boolean flipVertical) {
-        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            setUpCameraGingerbread(camera);
-        } else {
-            camera.setPreviewCallback(mRenderer);
-            camera.startPreview();
-        }
-        Rotation rotation = Rotation.NORMAL;
-        switch (degrees) {
-            case 90:
-                rotation = Rotation.ROTATION_90;
-                break;
-            case 180:
-                rotation = Rotation.ROTATION_180;
-                break;
-            case 270:
-                rotation = Rotation.ROTATION_270;
-                break;
-        }
-        mRenderer.setRotationCamera(rotation, flipHorizontal, flipVertical);
-    }
-
-    @TargetApi(11)
-    private void setUpCameraGingerbread(final Camera camera) {
-        mRenderer.setUpSurfaceTexture(camera, mGlSurfaceView);
-    }
 
     /**
      * Sets the filter which should be applied to the image which was (or will

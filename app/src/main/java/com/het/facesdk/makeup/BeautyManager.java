@@ -3,7 +3,11 @@ package com.het.facesdk.makeup;
 import android.content.Context;
 import android.util.Log;
 
+import com.cyberlink.clgpuimage.CLMakeupLiveBlushFilter;
+import com.cyberlink.clgpuimage.CLMakeupLiveEyeFilter;
+import com.cyberlink.clgpuimage.CLMakeupLiveFilter;
 import com.cyberlink.clgpuimage.CLMakeupLiveLipStickFilter;
+import com.cyberlink.clgpuimage.CLMakeupLiveSmoothFilter;
 import com.cyberlink.youcammakeup.jniproxy.CUIVenus;
 import com.het.facesdk.core.FaceThreadManager;
 
@@ -20,6 +24,21 @@ public class BeautyManager {
     CUIVenus mCUIVenus;
     private Context mContext;
 
+    public CLMakeupLiveEyeFilter.LiveEyeMakeupMetadata[] liveEyeMakeupMetadata = null;
+    public CLMakeupLiveLipStickFilter.LipstickData lipstickData = null;
+    public CLMakeupLiveBlushFilter.LiveBlushMakeupdata liveBlushMakeupdata = null;
+    public CLMakeupLiveSmoothFilter.LiveSmoothMetadata liveSmoothMetadata = null;
+    public CLMakeupLiveFilter.LiveFrameInformation liveFrameInformation = null;
+
+    public BeautyManager() {
+        this.liveEyeMakeupMetadata = new CLMakeupLiveEyeFilter.LiveEyeMakeupMetadata[2];
+        this.liveEyeMakeupMetadata[0] = new CLMakeupLiveEyeFilter.LiveEyeMakeupMetadata();
+        this.liveEyeMakeupMetadata[1] = new CLMakeupLiveEyeFilter.LiveEyeMakeupMetadata();
+        this.lipstickData = new CLMakeupLiveLipStickFilter.LipstickData();
+        this.liveBlushMakeupdata = new CLMakeupLiveBlushFilter.LiveBlushMakeupdata();
+        this.liveSmoothMetadata = new CLMakeupLiveSmoothFilter.LiveSmoothMetadata();
+        this.liveFrameInformation = new CLMakeupLiveFilter.LiveFrameInformation();
+    }
 
     public static BeautyManager getInstance(Context context) {
         if (mBeautyManager == null) {
@@ -35,7 +54,7 @@ public class BeautyManager {
         return mBeautyManager;
     }
 
-    private void initFace(){
+    private void initFace() {
         Log.d(TAG, "FileDir#" + cacheRoot());
         mCUIVenus = new CUIVenus(mContext.getApplicationInfo().nativeLibraryDir,
                 modelInit("model/Davinci.cade"),
@@ -52,6 +71,7 @@ public class BeautyManager {
         Log.d(TAG, "CUIVenus_IsModelLoaded#" + isLoadSuccess);
         if (mCUIVenus.CUIVenus_IsModelLoaded()) {
             boolean isMakeUpInit = mCUIVenus.CUIVenus_MakeupLiveInitialize();
+            setLipStick(new CLMakeupLiveLipStickFilter.LipStickProfile(CLMakeupLiveLipStickFilter.BlendMode.BRIGHT, 0xFF885511, 75, 100));
             Log.d(TAG, "MakeUpInit#" + isMakeUpInit);
         }
         Log.d(TAG, mCUIVenus.toString());
@@ -60,7 +80,7 @@ public class BeautyManager {
     private Runnable mInitCUIVenus = new Runnable() {
         @Override
         public void run() {
-           initFace();
+            initFace();
         }
     };
 
@@ -114,6 +134,11 @@ public class BeautyManager {
             return false;
         }
         return mCUIVenus.CUIVenus_GetFaceRectangle(object);
+    }
+
+    public void getMakeUpData() {
+        mCUIVenus.CUIVenus_GetMakeupMetadata(liveEyeMakeupMetadata, lipstickData, liveBlushMakeupdata, liveSmoothMetadata, liveFrameInformation);
+        Log.d(TAG, "getMakeUpData#" + lipstickData.m_blend_weight);
     }
 
 

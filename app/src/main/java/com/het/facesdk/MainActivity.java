@@ -42,11 +42,11 @@ public class MainActivity extends SimpleBaseActivity {
         mArMakeup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (FaceppEngine.hasPermission()) {
+//                if (FaceppEngine.hasPermission()) {
                     MakeUpActivity.startActivity(MainActivity.this);
-                } else {
-                    requestFaceppPermission();
-                }
+//                } else {
+//                    requestFaceppPermission();
+//                }
             }
         });
 

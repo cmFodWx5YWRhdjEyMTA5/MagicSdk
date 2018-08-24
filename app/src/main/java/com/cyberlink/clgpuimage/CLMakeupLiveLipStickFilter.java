@@ -195,7 +195,7 @@ public class CLMakeupLiveLipStickFilter extends GPUImageFilter {
         this.mLevelMapTextureId = -1;
     }
 
-    public void a(LipstickData lipstickData) {
+    public void freshData(LipstickData lipstickData) {
         this.mMaskBytes = lipstickData.m_mouth_mask_data;
         this.mReflectBytes = lipstickData.m_reflection_data;
         this.m_blend_weight = lipstickData.m_blend_weight;
@@ -265,7 +265,9 @@ public class CLMakeupLiveLipStickFilter extends GPUImageFilter {
         setFloat(this.mCenterYLocation, (((float) this.d) + (((float) this.f) * 0.5f)) / ((float) i7));
     }
 
-    protected void e() {
+    @Override
+    public void onDrawArraysPre() {
+
         this.G.clear();
         this.G.put(a(V, this.mRotation));
         this.G.position(0);

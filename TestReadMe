@@ -1,0 +1,91 @@
+byte[] data = v2.m_reflection_data;
+int[] argb = new int[v2.m_mask_width*v2.m_mask_height];
+for (int i = 0, j = 0; i < data.length; ) {
+    int r = data[i] & 0xff;
+    int g = data[i + 1] & 0xff;
+    int b = data[i + 2] & 0xff;
+    int a = data[i + 3] & 0xff;
+    argb[j] = (a << 24) | (r << 16) | (g << 8) | b;
+    i+=4;
+    j++;
+}
+try {
+    File file = new File("/sdcard/target.png");
+    if (!file.exists()) {
+        file.createNewFile();
+    }
+    FileOutputStream fos = new FileOutputStream("/sdcard/target.png");
+    Bitmap.createBitmap(argb, v2.m_mask_width, v2.m_mask_height, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.PNG,100,fos);
+    fos.flush();
+    fos.close();
+} catch (FileNotFoundException e) {
+    e.printStackTrace();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+
+
+byte[] data = v2.m_reflection_data;
+int[] argb = new int[v2.m_mask_width*v2.m_mask_height];
+for (int i = 0, j = 0; i < data.length; ) {
+    int r = data[i] & 0xff;
+    int g = data[i + 1] & 0xff;
+    int b = data[i + 2] & 0xff;
+    int a = data[i + 3] & 0xff;
+    argb[j] = (a << 24) | (r << 16) | (g << 8) | b;
+    i+=4;
+    j++;
+}
+try {
+    File file = new File("/sdcard/target.png");
+    if (!file.exists()) {
+        file.createNewFile();
+    }
+    FileOutputStream fos = new FileOutputStream("/sdcard/target.png");
+    Bitmap.createBitmap(argb, v2.m_mask_width, v2.m_mask_height, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.PNG,100,fos);
+    fos.flush();
+    fos.close();
+} catch (FileNotFoundException e) {
+    e.printStackTrace();
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(new File("/sdcard/src.png"));
+            fileOutputStream.write(data);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+===========================>
+
+
+6408               GLES20.GL_RGBA
+36064              GLES20.GL_COLOR_ATTACHMENT0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

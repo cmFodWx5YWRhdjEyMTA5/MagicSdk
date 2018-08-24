@@ -19,6 +19,7 @@ package com.cyberlink.clgpuimage;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.PointF;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 
 import com.het.facesdk.utils.OpenGlUtils;
@@ -49,13 +50,12 @@ public class GPUImageFilter {
             "void main()\n" +
             "{\n" +
             "     gl_FragColor = texture2D(inputImageTexture, textureCoordinate);\n" +
+//            "     gl_FragColor = vec4(1.0,0.0,0.0,1.0);\n" +
             "}";
 
     public static final float[] DEFAULT_VERTEXS = new float[]{
             1.0f, 1.0f,
             -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, 1.0f,
             -1.0f, -1.0f,
             1.0f, -1.0f
     };
@@ -63,8 +63,6 @@ public class GPUImageFilter {
     public static final float[] DEFAULT_FRAGS = new float[]{
             1.0f, 1.0f,
             -1.0f, 1.0f,
-            -1.0f, -1.0f,
-            1.0f, 1.0f,
             -1.0f, -1.0f,
             1.0f, -1.0f
     };
@@ -81,6 +79,12 @@ public class GPUImageFilter {
     private boolean mIsInitialized;
     public FloatBuffer mVertexBuffer;
     public FloatBuffer mFragVertexBuffer;
+    public int mTextTureId;
+
+
+    public int getTextTureId() {
+        return mTextTureId;
+    }
 
     public GPUImageFilter() {
         this(NO_FILTER_VERTEX_SHADER, NO_FILTER_FRAGMENT_SHADER);
@@ -143,6 +147,9 @@ public class GPUImageFilter {
 
     public void onDraw(final int textureId, final FloatBuffer cubeBuffer,
                        final FloatBuffer textureBuffer) {
+        this.mTextTureId = textureId;
+
+
         GLES20.glUseProgram(mGLProgId);
         runPendingOnDrawTasks();
         if (!mIsInitialized) {
@@ -162,17 +169,16 @@ public class GPUImageFilter {
             GLES20.glUniform1i(mGLUniformTexture, 0);
         }
         onDrawArraysPre();
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
-//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
         GLES20.glDisableVertexAttribArray(mGLAttribPosition);
         GLES20.glDisableVertexAttribArray(mGLAttribTextureCoordinate);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
     }
 
-    protected void onDrawArraysPre() {
+    public void onDrawArraysPre() {
     }
 
-    protected void runPendingOnDrawTasks() {
+    public void runPendingOnDrawTasks() {
         while (!mRunOnDraw.isEmpty()) {
             mRunOnDraw.removeFirst().run();
         }
