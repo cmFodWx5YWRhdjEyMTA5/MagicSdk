@@ -71,7 +71,7 @@ public class BeautyManager {
         Log.d(TAG, "CUIVenus_IsModelLoaded#" + isLoadSuccess);
         if (mCUIVenus.CUIVenus_IsModelLoaded()) {
             boolean isMakeUpInit = mCUIVenus.CUIVenus_MakeupLiveInitialize();
-            setLipStick(new CLMakeupLiveLipStickFilter.LipStickProfile(CLMakeupLiveLipStickFilter.BlendMode.BRIGHT, 0xFF885511, 75, 100));
+            setLipStick(new CLMakeupLiveLipStickFilter.LipStickProfile(CLMakeupLiveLipStickFilter.BlendMode.BRIGHT, 0xFFFF0000, 75, 100));
             Log.d(TAG, "MakeUpInit#" + isMakeUpInit);
         }
         Log.d(TAG, mCUIVenus.toString());

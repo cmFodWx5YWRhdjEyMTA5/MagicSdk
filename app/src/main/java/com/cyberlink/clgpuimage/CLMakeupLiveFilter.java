@@ -1,5 +1,6 @@
 package com.cyberlink.clgpuimage;
 
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
@@ -224,6 +225,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 //                }
                 }
                 if (mCurrentFeatureHolder.features[LIPSTICK]) {
+                    clMakeupLiveLipStickFilter.setLipStickColor(Color.parseColor("#FFA7192F"));
                     mFilters.add(clMakeupLiveLipStickFilter);
                 }
 

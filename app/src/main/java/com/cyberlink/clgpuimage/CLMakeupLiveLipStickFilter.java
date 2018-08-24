@@ -28,7 +28,7 @@ public class CLMakeupLiveLipStickFilter extends GPUImageFilter {
     private int mLipStickHeightLocation;
     private int mBackgroundImageWidthLocation;
     private int mBackgroundImageHeightLocation;
-    private int mLipstickColorLocation;
+    public int mLipstickColorLocation;
     private int mGloassContrastScaleLocation;
     private int mGlossContrastShiftLocation;
     private int mForceBrightThresholdLocation;
@@ -237,7 +237,7 @@ public class CLMakeupLiveLipStickFilter extends GPUImageFilter {
         });
     }
 
-    public void a(int i) {
+    public void setLipStickColor(int i) {
         this.mSaveRgb[0] = ((float) Color.red(i)) / 255.0f;
         this.mSaveRgb[1] = ((float) Color.green(i)) / 255.0f;
         this.mSaveRgb[2] = ((float) Color.blue(i)) / 255.0f;
