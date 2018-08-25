@@ -1,5 +1,6 @@
 package com.cyberlink.clgpuimage;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.opengl.GLES20;
@@ -90,6 +91,8 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     private final Object mDataLock;
     private final Object mSetDataLock;
 
+    private Bitmap[] mBitmapCaches;
+
 
     public CLMakeupLiveFilter() {
         this(true, true, true, true, true);
@@ -130,6 +133,11 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         mLiveBlushMakeupData = new LiveBlushMakeupdata();
         liveSmoothMetaData = new LiveSmoothMetadata();
         liveFrameInfomation = new LiveFrameInformation();
+
+
+//        for (int i = 0; i < mBitmapCaches.length; i++) {
+//            mBitmapCaches[]
+//        }
     }
 
     @Override
@@ -141,7 +149,6 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         clMakeupLiveLipStickFilter.init();
         clMakeupLiveBlushFilter.init();
         mWindowFilter.init();
-        initImage2Ds();
     }
 
     @Override
@@ -165,6 +172,14 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         clMakeupLiveLipStickFilter.onOutputSizeChanged(width, height);
         clMakeupLiveBlushFilter.onOutputSizeChanged(width, height);
         mWindowFilter.onOutputSizeChanged(width, height);
+
+
+        if (mFrameBuffers != null) {
+            release();
+        }
+
+        initImage2Ds();
+
     }
 
     @Override
@@ -195,6 +210,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 
         if (mCurrentFeatureHolder.isHas) {
             mFilters.clear();
+//            mFilters.add(mWindowFilter);
             if (mCurrentFeatureHolder.features[EYELINER] ||
                     mCurrentFeatureHolder.features[EYESHADOW] ||
                     mCurrentFeatureHolder.features[LIPSTICK] ||
@@ -206,7 +222,11 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 //                mFilters.add(clMakeupLiveSmotthFilter);
                 }
                 if (mCurrentFeatureHolder.features[BLUSH]) {
-//                mFilters.add(clMakeupLiveBlushFilter);
+                    clMakeupLiveBlushFilter.setBlushColor(Color.parseColor("#FFEB5E6D"));
+                    if (mBitmapCaches != null) {
+                        clMakeupLiveBlushFilter.setBlushBitmap(mBitmapCaches);
+                    }
+                    mFilters.add(clMakeupLiveBlushFilter);
                 }
                 if (mCurrentFeatureHolder.features[EYELINER] ||
                         mCurrentFeatureHolder.features[EYESHADOW] ||
@@ -269,6 +289,10 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         }
 
 
+    }
+
+    public void setBlushBitmaps(Bitmap[] bitmaps) {
+        mBitmapCaches = bitmaps;
     }
 
 
@@ -337,7 +361,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
                 clMakeupLiveLipStickFilter.freshData(mLipstickData);
             }
             if (mCurrentFeatureHolder.features[BLUSH]) {
-//                clMakeupLiveBlushFilter.a(mLiveBlushMakeupData);
+                clMakeupLiveBlushFilter.freshData(mLiveBlushMakeupData);
             }
             if (mCurrentFeatureHolder.features[SMOOTH]) {
 //                clMakeupLiveSmotthFilter.a(liveSmoothMetaData);

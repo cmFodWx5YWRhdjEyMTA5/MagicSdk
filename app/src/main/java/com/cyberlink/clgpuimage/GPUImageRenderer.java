@@ -19,6 +19,7 @@ package com.cyberlink.clgpuimage;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -98,6 +99,8 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     private GPUImageFilter mFilter;
     private GLSurfaceView mGLSurfaceView;
 
+    private Bitmap[] mBitmapCaches = new Bitmap[2];
+
     public GPUImageRenderer(final GPUImageFilter filter, Context context) {
 
         mContext = context;
@@ -131,6 +134,17 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
         mGLCLMakeUpFragBuffer.put(TEXTURE_NO_ROTATION);
         mGLCLMakeUpFragBuffer.position(0);
 //        setRotation(Rotation.NORMAL, false, false);
+
+        initBlushBitmaps();
+    }
+
+    private void initBlushBitmaps() {
+        try {
+            mBitmapCaches[0] = BitmapFactory.decodeStream(mContext.getAssets().open("blush/01_l.png"));
+            mBitmapCaches[1] = BitmapFactory.decodeStream(mContext.getAssets().open("blush/01_r.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setGLSurfaceView(GLSurfaceView glSurfaceView) {
@@ -174,6 +188,11 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        if(mFilter instanceof CLMakeupLiveFilter){
+            CLMakeupLiveFilter clMakeupLiveFilter = (CLMakeupLiveFilter) mFilter;
+            clMakeupLiveFilter.setBlushBitmaps(mBitmapCaches);
         }
     }
 
@@ -251,8 +270,8 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
                 clMakeupLiveFilter.handleData(mBeautyManager.liveEyeMakeupMetadata, mBeautyManager.lipstickData, mBeautyManager.liveBlushMakeupdata, mBeautyManager.liveSmoothMetadata, mBeautyManager.liveFrameInformation);
                 clMakeupLiveFilter.setHasData(true);
             }
-        }else {
-            if(mFilter instanceof CLMakeupLiveFilter){
+        } else {
+            if (mFilter instanceof CLMakeupLiveFilter) {
                 CLMakeupLiveFilter clMakeupLiveFilter = (CLMakeupLiveFilter) mFilter;
                 clMakeupLiveFilter.setHasData(false);
             }

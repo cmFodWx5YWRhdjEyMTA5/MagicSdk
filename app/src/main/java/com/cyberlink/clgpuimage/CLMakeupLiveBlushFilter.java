@@ -1,9 +1,20 @@
 package com.cyberlink.clgpuimage;
 
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.PointF;
+import android.opengl.GLES20;
 
+import com.het.facesdk.utils.OpenGlUtils;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
+/**
+ * 腮红Filter
+ */
 public class CLMakeupLiveBlushFilter extends GPUImageFilter {
-
 
     public static class LiveBlushMakeupdata {
         public PointF m_center = new PointF();
@@ -60,6 +71,195 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
         }
     }
 
+    private static final float[] D = new float[]{0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f};
+
+    private int A;
+    private boolean B;
+    private int C = 90;
+    protected int a;
+    private Object b = new Object();
+    private boolean c = false;
+    private Object d = new Object();
+    private FloatBuffer e = ByteBuffer.allocateDirect(D.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    private float f = 1.0f;
+    private float[] mBlushColor = new float[]{0.0f, 0.0f, 0.0f};
+    private float[] h = new float[]{0.0f, 0.0f, 0.0f};
+    private int i;
+    private int j;
+    private int k;
+    private int l;
+    private int m;
+    private int n;
+    private Bitmap o = null;
+    private int p = -1;
+    private int q;
+    private int r;
+    private int s;
+    private Bitmap t = null;
+    private int u = -1;
+    private int v;
+    private int w;
+    private int x;
+    private float y;
+    private float z;
+
+    public CLMakeupLiveBlushFilter() {
+        super(OpenGlUtils.file2Glsl("face/blush.vert"),
+                OpenGlUtils.file2Glsl("face/blush.frag"));
+    }
+
+    @Override
+    public void onInit() {
+        super.onInit();
+
+        this.a = GLES20.glGetAttribLocation(getProgram(), "inputTemplateTextureCoordinate");
+        this.i = GLES20.glGetUniformLocation(getProgram(), "blush_strength");
+        this.j = GLES20.glGetUniformLocation(getProgram(), "blush_color");
+        this.k = GLES20.glGetUniformLocation(getProgram(), "Mid_X_of_left_right");
+        this.l = GLES20.glGetUniformLocation(getProgram(), "RotateCenter");
+        this.m = GLES20.glGetUniformLocation(getProgram(), "Cos_Sin");
+        this.n = GLES20.glGetUniformLocation(getProgram(), "negSin_Cos");
+        this.q = GLES20.glGetUniformLocation(getProgram(), "left_blush_texture");
+        this.r = GLES20.glGetUniformLocation(getProgram(), "left_blush_roi");
+        this.s = GLES20.glGetUniformLocation(getProgram(), "left_blush_stretch");
+        this.v = GLES20.glGetUniformLocation(getProgram(), "right_blush_texture");
+        this.w = GLES20.glGetUniformLocation(getProgram(), "right_blush_roi");
+        this.x = GLES20.glGetUniformLocation(getProgram(), "right_blush_stretch");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (this.p != -1) {
+            GLES20.glDeleteTextures(1, new int[]{this.p}, 0);
+            this.p = -1;
+        }
+        if (this.u != -1) {
+            GLES20.glDeleteTextures(1, new int[]{this.u}, 0);
+            this.u = -1;
+        }
+    }
+
+    @Override
+    public void onOutputSizeChanged(int width, int height) {
+        super.onOutputSizeChanged(width, height);
+    }
+
+    @Override
+    public void onDraw(int textureId, FloatBuffer cubeBuffer, FloatBuffer textureBuffer) {
+        super.onDraw(textureId, cubeBuffer, textureBuffer);
+    }
+
+    @Override
+    public void onDrawArraysPre() {
+        super.onDrawArraysPre();
+        this.e.clear();
+        this.e.put(a(D, this.A));
+        this.e.position(0);
+        GLES20.glVertexAttribPointer(this.a, 2, 5126, false, 0, this.e);
+        GLES20.glEnableVertexAttribArray(this.a);
+        setFloat(this.i, this.f);
+        synchronized (this.d) {
+            float f = this.z;
+            float f2 = this.y;
+            this.h[0] = ((f2 - f) * this.mBlushColor[0]) + f;
+            this.h[1] = ((f2 - f) * this.mBlushColor[1]) + f;
+            this.h[2] = f + ((f2 - f) * this.mBlushColor[2]);
+        }
+        GLES20.glUniform3fv(this.j, 1, FloatBuffer.wrap(this.h));
+        if (this.p != -1) {
+            GLES20.glActiveTexture(33987);
+            GLES20.glBindTexture(3553, this.p);
+            GLES20.glUniform1i(this.q, 3);
+        }
+        if (this.u != -1) {
+            GLES20.glActiveTexture(33988);
+            GLES20.glBindTexture(3553, this.u);
+            GLES20.glUniform1i(this.v, 4);
+        }
+    }
+
+    @Override
+    public void runPendingOnDrawTasks() {
+        super.runPendingOnDrawTasks();
+        doSomeTasks();
+    }
+
+    public void freshData(LiveBlushMakeupdata liveBlushMakeupdata) {
+        synchronized (this.d) {
+            setPoint(this.n, new PointF(-liveBlushMakeupdata.m_sin_val, liveBlushMakeupdata.m_cos_val));
+            setPoint(this.m, new PointF(liveBlushMakeupdata.m_cos_val, liveBlushMakeupdata.m_sin_val));
+            setPoint(this.l, liveBlushMakeupdata.m_center);
+            setFloat(this.k, liveBlushMakeupdata.m_center.x);
+            setPoint(this.s, new PointF(b(liveBlushMakeupdata.m_left_blush_roi.width()), b(liveBlushMakeupdata.m_left_blush_roi.height())));
+            setPoint(this.r, new PointF(liveBlushMakeupdata.m_left_blush_roi.l, liveBlushMakeupdata.m_left_blush_roi.t));
+            setPoint(this.x, new PointF(b(liveBlushMakeupdata.m_right_blush_roi.width()), b(liveBlushMakeupdata.m_right_blush_roi.height())));
+            setPoint(this.w, new PointF(liveBlushMakeupdata.m_right_blush_roi.l, liveBlushMakeupdata.m_right_blush_roi.t));
+            this.z = liveBlushMakeupdata.m_environment_darkest_reference_normalized_luma;
+            this.y = liveBlushMakeupdata.m_environment_brightest_reference_normalized_luma;
+            this.A = liveBlushMakeupdata.m_rotation;
+            this.B = liveBlushMakeupdata.m_is_flipped;
+        }
+    }
+
+    public void a(float f) {
+        if (f >= 0.0f && f <= 100.0f) {
+            this.f = 0.01f * f;
+        }
+    }
+
+    public void setBlushColor(int i) {
+        this.mBlushColor[0] = ((float) Color.red(i)) / 255.0f;
+        this.mBlushColor[1] = ((float) Color.green(i)) / 255.0f;
+        this.mBlushColor[2] = ((float) Color.blue(i)) / 255.0f;
+    }
+
+    public boolean setBlushBitmap(Bitmap[] bitmapArr) {
+        synchronized (this.b) {
+            this.o = Bitmap.createBitmap(bitmapArr[0]);
+            this.t = Bitmap.createBitmap(bitmapArr[1]);
+            this.c = true;
+        }
+        return true;
+    }
+
+    private void doSomeTasks() {
+        synchronized (this.b) {
+            if (this.c) {
+                if (this.p != -1) {
+                    GLES20.glDeleteTextures(1, new int[]{this.p}, 0);
+                    this.p = -1;
+                }
+                if (!(this.o == null || this.o.isRecycled())) {
+                    this.p = af.a(this.o, -1, false);
+                }
+                if (this.u != -1) {
+                    GLES20.glDeleteTextures(1, new int[]{this.u}, 0);
+                    this.u = -1;
+                }
+                if (!(this.t == null || this.t.isRecycled())) {
+                    this.u = af.a(this.t, -1, false);
+                }
+                this.c = false;
+            }
+        }
+    }
+
+    public float b(float f) {
+        return 1.0f / f;
+    }
+
+    protected float[] a(float[] fArr, int i) {
+        if (i == (this.C + 270) % 360) {
+            return new float[]{fArr[4], fArr[5], fArr[0], fArr[1], fArr[6], fArr[7], fArr[2], fArr[3]};
+        } else if (i == (this.C + 180) % 360) {
+            return new float[]{fArr[6], fArr[7], fArr[4], fArr[5], fArr[2], fArr[3], fArr[0], fArr[1]};
+        } else if (i == (this.C + 90) % 360) {
+            return new float[]{fArr[2], fArr[3], fArr[6], fArr[7], fArr[0], fArr[1], fArr[4], fArr[5]};
+        } else {
+            return new float[]{fArr[0], fArr[1], fArr[2], fArr[3], fArr[4], fArr[5], fArr[6], fArr[7]};
+        }
+    }
 
     public static PointF a(float f, float f2, PointF pointF, PointF pointF2) {
         PointF pointF3 = new PointF();
