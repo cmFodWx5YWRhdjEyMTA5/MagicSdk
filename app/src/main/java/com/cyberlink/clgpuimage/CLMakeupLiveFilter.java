@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+import com.het.facesdk.makeup.BeautyManager;
 import com.het.facesdk.utils.OpenGlUtils;
 
 import java.nio.FloatBuffer;
@@ -92,6 +93,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
     private final Object mSetDataLock;
 
     private Bitmap[] mBitmapCaches;
+    private PointF[] mEyePoints;
 
 
     public CLMakeupLiveFilter() {
@@ -134,7 +136,11 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         liveSmoothMetaData = new LiveSmoothMetadata();
         liveFrameInfomation = new LiveFrameInformation();
 
-
+        mEyePoints = new PointF[4];
+        mEyePoints[0] = new PointF(142.0f, 143.5f);
+        mEyePoints[1] = new PointF(229.0f, 106.5f);
+        mEyePoints[2] = new PointF(316.5f, 143.5f);
+        mEyePoints[3] = new PointF(229.0f, 181.0f);
 //        for (int i = 0; i < mBitmapCaches.length; i++) {
 //            mBitmapCaches[]
 //        }
@@ -149,6 +155,9 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         clMakeupLiveLipStickFilter.init();
         clMakeupLiveBlushFilter.init();
         mWindowFilter.init();
+
+        initEyePoints(mEyePoints, 450, 300, 480, 320, 2);
+
     }
 
     @Override
@@ -235,13 +244,13 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 //                if (i4 == 1) {
 //                    mFilters.add(n);
 //                } else {
-//                    mFilters.add(clMakeupLiveEyeFilterLeft);
+                    mFilters.add(clMakeupLiveEyeFilterLeft);
 //                }
 //
 //                if (i5 == 1) {
 //                    mFilters.add(o);
 //                } else {
-//                    mFilters.add(clMakeupLiveEyeFilterRight);
+                    mFilters.add(clMakeupLiveEyeFilterRight);
 //                }
                 }
                 if (mCurrentFeatureHolder.features[LIPSTICK]) {
@@ -293,6 +302,21 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 
     public void setBlushBitmaps(Bitmap[] bitmaps) {
         mBitmapCaches = bitmaps;
+    }
+
+    public void setEyelinerEnable(boolean enable) {
+        clMakeupLiveEyeFilterLeft.setEyeLinerEnable(enable);
+        clMakeupLiveEyeFilterRight.setEyeLinerEnable(enable);
+    }
+
+    public void setEyelinerModel(byte[] model, int color) {
+        clMakeupLiveEyeFilterLeft.setEyeLiner(model, color);
+        clMakeupLiveEyeFilterRight.setEyeLiner(model, color);
+    }
+
+    public void initEyePoints(PointF[] points, int w, int h, int w2, int h2, int tag) {
+        clMakeupLiveEyeFilterLeft.initPoints(points, w, h, w2, h2, tag);
+        clMakeupLiveEyeFilterRight.initPoints(points, w, h, w2, h2, tag);
     }
 
 
@@ -352,8 +376,8 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
             if (mCurrentFeatureHolder.features[EYELINER] ||
                     mCurrentFeatureHolder.features[EYESHADOW] ||
                     mCurrentFeatureHolder.features[EYELASH]) {
-//                clMakeupLiveEyeFilterLeft.a(liveEyeMakeupMetaData[0]);
-//                clMakeupLiveEyeFilterRight.a(liveEyeMakeupMetaData[1]);
+                clMakeupLiveEyeFilterLeft.freshData(liveEyeMakeupMetaData[0]);
+                clMakeupLiveEyeFilterRight.freshData(liveEyeMakeupMetaData[1]);
 //                n.a(liveEyeMakeupMetaData[0]);
 //                o.a(liveEyeMakeupMetaData[1]);
             }

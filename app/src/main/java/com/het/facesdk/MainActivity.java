@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.het.facesdk.core.FaceThreadManager;
 import com.het.facesdk.facepp.FaceppEngine;
+import com.het.facesdk.makeup.BeautyManager;
 import com.het.facesdk.makeup.MakeUpActivity;
 import com.het.facesdk.utils.OpenGlUtils;
 import com.megvii.licensemanager.sdk.LicenseManager;
@@ -53,6 +54,8 @@ public class MainActivity extends SimpleBaseActivity {
         FaceppEngine.init(MainActivity.this);
         checkPermission();
         requestFaceppPermission();
+
+        BeautyManager.getInstance(this);
 
     }
 

@@ -190,9 +190,11 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
             }
         }
 
-        if(mFilter instanceof CLMakeupLiveFilter){
+        if (mFilter instanceof CLMakeupLiveFilter) {
             CLMakeupLiveFilter clMakeupLiveFilter = (CLMakeupLiveFilter) mFilter;
             clMakeupLiveFilter.setBlushBitmaps(mBitmapCaches);
+            clMakeupLiveFilter.setEyelinerEnable(true);
+            clMakeupLiveFilter.setEyelinerModel(mBeautyManager.getEyeLiner(), 0xFF333333);
         }
     }
 
