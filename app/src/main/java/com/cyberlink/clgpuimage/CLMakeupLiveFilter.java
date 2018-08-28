@@ -228,7 +228,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
                     mCurrentFeatureHolder.features[EYELASH]) {
 
                 if (mCurrentFeatureHolder.features[SMOOTH]) {
-//                mFilters.add(clMakeupLiveSmotthFilter);
+//                    mFilters.add(clMakeupLiveSmotthFilter);
                 }
                 if (mCurrentFeatureHolder.features[BLUSH]) {
                     clMakeupLiveBlushFilter.setBlushColor(Color.parseColor("#FFEB5E6D"));
@@ -314,6 +314,27 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         clMakeupLiveEyeFilterRight.setEyeLiner(model, color);
     }
 
+    public void setEyeLashEnable(boolean enable) {
+        clMakeupLiveEyeFilterLeft.setEyeLashEnable(enable);
+        clMakeupLiveEyeFilterRight.setEyeLashEnable(enable);
+    }
+
+    public void setEyeLashModel(byte[] model, int color) {
+        clMakeupLiveEyeFilterLeft.setEyeLash(model, color);
+        clMakeupLiveEyeFilterRight.setEyeLash(model, color);
+    }
+
+    public void setEyeShadowModel(int[] iArr, byte[] bArr, byte[] bArr2) {
+        clMakeupLiveEyeFilterLeft.setEyeShadow(iArr, bArr, bArr2);
+        clMakeupLiveEyeFilterRight.setEyeShadow(iArr, bArr, bArr2);
+    }
+
+
+    public void setEyeshadow(boolean enable) {
+        clMakeupLiveEyeFilterLeft.setEyeShadowEnable(enable);
+        clMakeupLiveEyeFilterRight.setEyeShadowEnable(enable);
+    }
+
     public void initEyePoints(PointF[] points, int w, int h, int w2, int h2, int tag) {
         clMakeupLiveEyeFilterLeft.initPoints(points, w, h, w2, h2, tag);
         clMakeupLiveEyeFilterRight.initPoints(points, w, h, w2, h2, tag);
@@ -388,7 +409,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
                 clMakeupLiveBlushFilter.freshData(mLiveBlushMakeupData);
             }
             if (mCurrentFeatureHolder.features[SMOOTH]) {
-//                clMakeupLiveSmotthFilter.a(liveSmoothMetaData);
+                clMakeupLiveSmotthFilter.freshData(liveSmoothMetaData);
             }
         }
     }

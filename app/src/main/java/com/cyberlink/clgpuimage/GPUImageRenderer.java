@@ -195,6 +195,8 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
             clMakeupLiveFilter.setBlushBitmaps(mBitmapCaches);
             clMakeupLiveFilter.setEyelinerEnable(true);
             clMakeupLiveFilter.setEyelinerModel(mBeautyManager.getEyeLiner(), 0xFF333333);
+            clMakeupLiveFilter.setEyeLashEnable(true);
+            clMakeupLiveFilter.setEyeLashModel(mBeautyManager.getEyeLash(), 0xFF333333);
         }
     }
 

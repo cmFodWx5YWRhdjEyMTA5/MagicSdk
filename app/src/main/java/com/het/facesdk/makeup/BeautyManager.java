@@ -35,6 +35,7 @@ public class BeautyManager {
 
 
     public byte[] mEyeLiner;
+    public byte[] mEyeLash;
     public PointF[] mGlobalPoints;
 
     public BeautyManager() {
@@ -85,13 +86,18 @@ public class BeautyManager {
         if (mCUIVenus.CUIVenus_IsModelLoaded()) {
             boolean isMakeUpInit = mCUIVenus.CUIVenus_MakeupLiveInitialize();
             setLipStick(new CLMakeupLiveLipStickFilter.LipStickProfile(CLMakeupLiveLipStickFilter.BlendMode.BRIGHT, 0xFFFF0000, 75, 100));
-            byte[][] src = BitmapUtil.decodePNGs(mContext, new String[]{
+            byte[][] eyeLinerSrc = BitmapUtil.decodePNGs(mContext, new String[]{
                     "makeup/eyeline/01_01_01.png"
             });
+            byte[][] eyeLashSrc = BitmapUtil.decodePNGs(mContext, new String[]{
+                    "makeup/eyelash/01_01_01.png"
+            });
             mEyeLiner = new byte[450 * 300];
+            mEyeLash = new byte[450 * 300];
 
             initialEyeModelCommonInfo(mGlobalPoints, 450, 300);
-            preprocessEyelinerModel(mEyeLiner, src, 0xFF333333, 50, 1, 450, 300);
+            preprocessEyelinerModel(mEyeLiner, eyeLinerSrc, 0xFF333333, 50, 1, 450, 300);
+            preprocessEyelinerModel(mEyeLash, eyeLashSrc, 0xFF333333, 50, 1, 450, 300);
             Log.d(TAG, "MakeUpInit#" + isMakeUpInit);
         }
         Log.d(TAG, mCUIVenus.toString());
@@ -110,6 +116,10 @@ public class BeautyManager {
 
     public byte[] getEyeLiner() {
         return mEyeLiner;
+    }
+
+    public byte[] getEyeLash() {
+        return mEyeLash;
     }
 
     private String cacheRoot() {
