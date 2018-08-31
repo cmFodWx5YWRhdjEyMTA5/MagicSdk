@@ -136,6 +136,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         liveSmoothMetaData = new LiveSmoothMetadata();
         liveFrameInfomation = new LiveFrameInformation();
 
+        //确定素材关键点.用于变形?
         mEyePoints = new PointF[4];
         mEyePoints[0] = new PointF(142.0f, 143.5f);
         mEyePoints[1] = new PointF(229.0f, 106.5f);

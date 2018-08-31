@@ -48,7 +48,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     private Object aG;
     private boolean aH;
     private Object aI;
-    private boolean aJ;
+    private boolean mHasEyeLash;
     private int aK;
     protected boolean mIsEyeShadowEnable;
     protected boolean mIsEyeLinerEnable;
@@ -89,10 +89,10 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     protected boolean r;
     protected PointF[] s;
     protected PointF[] t;
-    protected int u;
-    protected int v;
-    protected int w;
-    protected int x;
+    protected int u;//眼线,睫毛宽
+    protected int v;//眼线,睫毛高
+    protected int w;//眼影宽
+    protected int x;//眼影高
     protected int y;
     protected ByteBuffer[] z;
 
@@ -266,7 +266,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         this.aG = new Object();
         this.aH = false;
         this.aI = new Object();
-        this.aJ = false;
+        this.mHasEyeLash = false;
         this.aK = 90;
         this.b = ByteBuffer.allocateDirect(au.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for (int i2 = 0; i2 < 4; i2++) {
@@ -318,7 +318,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         this.aG = new Object();
         this.aH = false;
         this.aI = new Object();
-        this.aJ = false;
+        this.mHasEyeLash = false;
         this.aK = 90;
         this.b = ByteBuffer.allocateDirect(au.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for (int i2 = 0; i2 < 4; i2++) {
@@ -524,10 +524,14 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             GLES20.glUniform1f(this.L, 1.0f / f);
             float f3 = (this.s[2].x - this.s[0].x) / (this.am.m_oriented_eye_points[2].x - this.am.m_oriented_eye_points[0].x);
             GLES20.glUniform1f(this.ai, Math.max(0.0f, Math.min(1.0f, ((((1.0f / f3) * ((float) this.u)) / ((float) this.w)) - 0.35f) / 0.3f)));
+
+            //眼线,睫毛,眼影重叠区域
             Rect rect = new Rect();
             rect.union(this.F);
             rect.union(this.G);
             rect.union(this.H);
+
+
             PointF pointF2 = new PointF(this.t[1].x, this.t[0].y);
             this.ap[0] = (pointF2.x - ((float) rect.left)) / (pointF2.x - this.t[0].x);
             this.ap[1] = (pointF2.y - ((float) rect.top)) / (pointF2.y - this.t[1].y);
@@ -576,6 +580,8 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         setInteger(this.mIsEnableEyelashLocation, z ? 1 : 0);
     }
 
+//    initEyePoints(mEyePoints, 450, 300, 480, 320, 2)
+//    在每个控制过程有一个控制变量
     public void initPoints(PointF[] pointFArr, int i, int i2, int i3, int i4, int i5) {
         if (i5 == 2) {
             int i6;
@@ -608,7 +614,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         }
     }
 
-    boolean a(Rect rect, int[] iArr, int i) {
+    boolean calculateRectFromGray(Rect rect, int[] iArr, int i) {
         if (rect == null) {
             return false;
         }
@@ -651,7 +657,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             return false;
         }
         synchronized (this.aE) {
-            a(this.I, iArr, 0);
+            calculateRectFromGray(this.I, iArr, 0);
             this.c = Bitmap.createBitmap(this.u, this.v, Config.ARGB_8888);
             this.c.setPixels(iArr, 0, this.u, 0, 0, this.u, this.v);
             int i2 = 0;
@@ -736,18 +742,18 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             i2++;
         }
         synchronized (this.aI) {
-            a(this.K, iArr, 0);
+            calculateRectFromGray(this.K, iArr, 0);
             this.q.clear();
             this.q.put(bArr);
             this.q.position(0);
-            this.aJ = true;
+            this.mHasEyeLash = true;
         }
         return true;
     }
 
     private void n() {
         synchronized (this.aI) {
-            if (this.aJ) {
+            if (this.mHasEyeLash) {
                 IntBuffer allocate = IntBuffer.allocate(1);
                 GLES20.glGetIntegerv(3317, allocate);
                 GLES20.glPixelStorei(3317, 1);
@@ -767,7 +773,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 }
                 GLES20.glPixelStorei(3317, allocate.get(0));
                 this.H.set(this.K);
-                this.aJ = false;
+                this.mHasEyeLash = false;
             }
         }
     }
@@ -786,7 +792,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             i2++;
         }
         synchronized (this.aG) {
-            a(this.J, iArr, 0);
+            calculateRectFromGray(this.J, iArr, 0);
             this.k.clear();
             this.k.put(bArr);
             this.k.position(0);
