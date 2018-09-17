@@ -165,7 +165,7 @@ public class GPUImageView extends FrameLayout {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a Uri.
+     * Sets the image on which the filter should be applied from inputTemplateTextureCoordinate Uri.
      *
      * @param uri the uri of the new image
      */
@@ -174,7 +174,7 @@ public class GPUImageView extends FrameLayout {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a File.
+     * Sets the image on which the filter should be applied from inputTemplateTextureCoordinate File.
      *
      * @param file the file of the new image
      */
@@ -230,7 +230,7 @@ public class GPUImageView extends FrameLayout {
      * @throws InterruptedException
      */
     public Bitmap capture(final int width, final int height) throws InterruptedException {
-        // This method needs to run on a background thread because it will take a longer time
+        // This method needs to run on inputTemplateTextureCoordinate background thread because it will take inputTemplateTextureCoordinate longer time
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new IllegalStateException("Do not call this method from the UI thread!");
         }
@@ -295,7 +295,7 @@ public class GPUImageView extends FrameLayout {
     }
 
     /**
-     * Capture the current image with the size as it is displayed and retrieve it as Bitmap.
+     * Capture the current image with the size analyzing_frame_width_height_in_pixel it is displayed and retrieve it analyzing_frame_width_height_in_pixel Bitmap.
      * @return current output as Bitmap
      * @throws InterruptedException
      */

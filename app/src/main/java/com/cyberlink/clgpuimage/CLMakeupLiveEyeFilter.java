@@ -17,36 +17,36 @@ import java.nio.IntBuffer;
 public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     protected static final float[] au = new float[]{0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f};
     protected int[] A;
-    protected int[] B;
+    protected int[] bright_texture;
     protected ByteBuffer[] C;
     protected int[] D;
-    protected int[] E;
-    protected Rect F;
-    protected Rect G;
-    protected Rect H;
-    protected Rect I;
-    protected Rect J;
-    protected Rect K;
-    protected int L;
-    protected int M;
-    protected int N;
-    protected int O;
-    protected int P;
-    protected int Q;
-    protected int R;
-    protected int S;
-    protected int T;
-    protected int U;
-    protected int V;
-    protected int W;
-    protected int X;
-    protected int Y;
-    protected int Z;
-    protected int a;
-    private Object aE;
-    private boolean aF;
-    private Object aG;
-    private boolean aH;
+    protected int[] glitter_texture;
+    protected Rect shadowRect;
+    protected Rect eyeLinerRect;
+    protected Rect eyeLashRect;
+    protected Rect shadowRectN;
+    protected Rect eyeLinerRectN;
+    protected Rect eyeLashRectN;
+    protected int frame_to_template_y_remapping_factor;
+    protected int target_eye_lower_lid_luma;
+    protected int level_orient_cos_sin;
+    protected int oriented_upper_lid_center;
+    protected int oriented_lower_lid_center;
+    protected int similarity_origin;
+    protected int similarity_shift;
+    protected int similarity_scale;
+    protected int top_spline_transform_src_dst_center;
+    protected int top_left_spline_transform_src_dst_aligned_parabolic_coeff;
+    protected int top_right_spline_transform_src_dst_aligned_parabolic_coeff;
+    protected int bottom_spline_transform_src_dst_center;
+    protected int bottom_left_spline_transform_src_dst_aligned_parabolic_coeff;
+    protected int bottom_right_spline_transform_src_dst_aligned_parabolic_coeff;
+    protected int environment_luma;
+    protected int inputTemplateTextureCoordinate;
+    private Object drawShadowLock;
+    private boolean needToDrawShadow;
+    private Object needDrawEyeLinerLock;
+    private boolean needDrawEyeLiner;
     private Object aI;
     private boolean mHasEyeLash;
     private int aK;
@@ -58,39 +58,39 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     protected int mIsEnableEyelashLocation;
     protected float ag;
     protected float ah;
-    protected int ai;
-    protected int aj;
-    protected int ak;
+    protected int shimmer_model_scale;
+    protected int environment_brightest;
+    protected int environment_compress;
     protected Object al;
-    LiveEyeMakeupMetadata am;
+    LiveEyeMakeupMetadata eyeMakeupData;
     protected boolean an;
-    protected int ao;
-    protected float[] ap;
-    protected int aq;
-    protected int ar;
-    protected int as;
-    protected int at;
+    protected int left_right_flip;
+    protected float[] centerPointControlFactors;
+    protected int roi;
+    protected int eyeshadow_multiply_correction;
+    protected int analyzing_frame_width_height_in_pixel;
+    protected int upper_lid_eyelash_y_scale_adjuster;
     protected FloatBuffer b;
-    protected Bitmap c;
-    protected int d;
-    protected int e;
-    protected int f;
+    protected Bitmap eyeShadow;
+    protected int eyeshadowTextures;
+    protected int eyeshadow_texture;
+    protected int eyeliner_template_color;
     protected float[] g;
     protected float[] h;
-    protected int i;
-    protected int j;
+    protected int eyeLinerTextures;
+    protected int eyeliner_texture;
     protected ByteBuffer k;
-    protected int l;
+    protected int eyelash_template_color;
     protected float[] m;
     protected float[] n;
-    protected int o;
-    protected int p;
+    protected int eyelashTextures;
+    protected int eyelash_texture;
     protected ByteBuffer q;
     protected boolean r;
-    protected PointF[] s;
-    protected PointF[] t;
-    protected int u;//眼线,睫毛宽
-    protected int v;//眼线,睫毛高
+    protected PointF[] eyeLinerLashPointInBitmapFacts;
+    protected PointF[] eyeInitPoints;
+    protected int eyeLinerLashBitmapWidth;//眼线,睫毛宽
+    protected int eyeLinerLashBitmapHeight;//眼线,睫毛高
     protected int w;//眼影宽
     protected int x;//眼影高
     protected int y;
@@ -232,46 +232,46 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         super(OpenGlUtils.file2Glsl("face/eye.vert"),
                 OpenGlUtils.file2Glsl("face/eye.frag"));
         int i = 0;
-        this.d = -1;
+        this.eyeshadowTextures = -1;
         this.g = new float[]{0.0f, 0.0f, 0.0f};
         this.h = new float[]{0.0f, 0.0f, 0.0f};
-        this.i = -1;
+        this.eyeLinerTextures = -1;
         this.m = new float[]{0.0f, 0.0f, 0.0f};
         this.n = new float[]{0.0f, 0.0f, 0.0f};
-        this.o = -1;
+        this.eyelashTextures = -1;
         this.r = false;
-        this.s = new PointF[4];
-        this.t = new PointF[4];
+        this.eyeLinerLashPointInBitmapFacts = new PointF[4];
+        this.eyeInitPoints = new PointF[4];
         this.z = new ByteBuffer[2];
         this.A = new int[2];
-        this.B = new int[2];
+        this.bright_texture = new int[2];
         this.C = new ByteBuffer[2];
         this.D = new int[2];
-        this.E = new int[2];
-        this.F = new Rect();
-        this.G = new Rect();
-        this.H = new Rect();
-        this.I = new Rect();
-        this.J = new Rect();
-        this.K = new Rect();
+        this.glitter_texture = new int[2];
+        this.shadowRect = new Rect();
+        this.eyeLinerRect = new Rect();
+        this.eyeLashRect = new Rect();
+        this.shadowRectN = new Rect();
+        this.eyeLinerRectN = new Rect();
+        this.eyeLashRectN = new Rect();
         this.mIsEyeShadowEnable = false;
         this.mIsEyeLinerEnable = false;
         this.mIsEyelashEnable = false;
         this.al = new Object();
-        this.am = new LiveEyeMakeupMetadata();
+        this.eyeMakeupData = new LiveEyeMakeupMetadata();
         this.an = true;
-        this.ap = new float[4];
-        this.aE = new Object();
-        this.aF = false;
-        this.aG = new Object();
-        this.aH = false;
+        this.centerPointControlFactors = new float[4];
+        this.drawShadowLock = new Object();
+        this.needToDrawShadow = false;
+        this.needDrawEyeLinerLock = new Object();
+        this.needDrawEyeLiner = false;
         this.aI = new Object();
         this.mHasEyeLash = false;
         this.aK = 90;
         this.b = ByteBuffer.allocateDirect(au.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for (int i2 = 0; i2 < 4; i2++) {
-            this.s[i2] = new PointF();
-            this.t[i2] = new PointF();
+            this.eyeLinerLashPointInBitmapFacts[i2] = new PointF();
+            this.eyeInitPoints[i2] = new PointF();
         }
         this.an = z;
         while (i < 2) {
@@ -284,46 +284,46 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     protected CLMakeupLiveEyeFilter(boolean z, String str, String str2) {
         super(str, str2);
         int i = 0;
-        this.d = -1;
+        this.eyeshadowTextures = -1;
         this.g = new float[]{0.0f, 0.0f, 0.0f};
         this.h = new float[]{0.0f, 0.0f, 0.0f};
-        this.i = -1;
+        this.eyeLinerTextures = -1;
         this.m = new float[]{0.0f, 0.0f, 0.0f};
         this.n = new float[]{0.0f, 0.0f, 0.0f};
-        this.o = -1;
+        this.eyelashTextures = -1;
         this.r = false;
-        this.s = new PointF[4];
-        this.t = new PointF[4];
+        this.eyeLinerLashPointInBitmapFacts = new PointF[4];
+        this.eyeInitPoints = new PointF[4];
         this.z = new ByteBuffer[2];
         this.A = new int[2];
-        this.B = new int[2];
+        this.bright_texture = new int[2];
         this.C = new ByteBuffer[2];
         this.D = new int[2];
-        this.E = new int[2];
-        this.F = new Rect();
-        this.G = new Rect();
-        this.H = new Rect();
-        this.I = new Rect();
-        this.J = new Rect();
-        this.K = new Rect();
+        this.glitter_texture = new int[2];
+        this.shadowRect = new Rect();
+        this.eyeLinerRect = new Rect();
+        this.eyeLashRect = new Rect();
+        this.shadowRectN = new Rect();
+        this.eyeLinerRectN = new Rect();
+        this.eyeLashRectN = new Rect();
         this.mIsEyeShadowEnable = false;
         this.mIsEyeLinerEnable = false;
         this.mIsEyelashEnable = false;
         this.al = new Object();
-        this.am = new LiveEyeMakeupMetadata();
+        this.eyeMakeupData = new LiveEyeMakeupMetadata();
         this.an = true;
-        this.ap = new float[4];
-        this.aE = new Object();
-        this.aF = false;
-        this.aG = new Object();
-        this.aH = false;
+        this.centerPointControlFactors = new float[4];
+        this.drawShadowLock = new Object();
+        this.needToDrawShadow = false;
+        this.needDrawEyeLinerLock = new Object();
+        this.needDrawEyeLiner = false;
         this.aI = new Object();
         this.mHasEyeLash = false;
         this.aK = 90;
         this.b = ByteBuffer.allocateDirect(au.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
         for (int i2 = 0; i2 < 4; i2++) {
-            this.s[i2] = new PointF();
-            this.t[i2] = new PointF();
+            this.eyeLinerLashPointInBitmapFacts[i2] = new PointF();
+            this.eyeInitPoints[i2] = new PointF();
         }
         this.an = z;
         while (i < 2) {
@@ -334,68 +334,68 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
     }
 
     public void f() {
-//        a(b.a(l.a), b.a(k.a));
+//        inputTemplateTextureCoordinate(b.inputTemplateTextureCoordinate(eyelash_template_color.inputTemplateTextureCoordinate), b.inputTemplateTextureCoordinate(k.inputTemplateTextureCoordinate));
     }
 
     @Override
     public void onInit() {
         super.onInit();
-        this.a = GLES20.glGetAttribLocation(getProgram(), "inputTemplateTextureCoordinate");
-        this.e = GLES20.glGetUniformLocation(getProgram(), "eyeshadow_texture");
-        this.j = GLES20.glGetUniformLocation(getProgram(), "eyeliner_texture");
-        this.p = GLES20.glGetUniformLocation(getProgram(), "eyelash_texture");
-        this.ao = GLES20.glGetUniformLocation(getProgram(), "left_right_flip");
-        this.f = GLES20.glGetUniformLocation(getProgram(), "eyeliner_template_color");
-        this.l = GLES20.glGetUniformLocation(getProgram(), "eyelash_template_color");
-        this.L = GLES20.glGetUniformLocation(getProgram(), "frame_to_template_y_remapping_factor");
-        this.M = GLES20.glGetUniformLocation(getProgram(), "target_eye_lower_lid_luma");
-        this.N = GLES20.glGetUniformLocation(getProgram(), "level_orient_cos_sin");
-        this.O = GLES20.glGetUniformLocation(getProgram(), "oriented_upper_lid_center");
-        this.P = GLES20.glGetUniformLocation(getProgram(), "oriented_lower_lid_center");
-        this.Q = GLES20.glGetUniformLocation(getProgram(), "similarity_origin");
-        this.R = GLES20.glGetUniformLocation(getProgram(), "similarity_shift");
-        this.S = GLES20.glGetUniformLocation(getProgram(), "similarity_scale");
-        this.T = GLES20.glGetUniformLocation(getProgram(), "top_spline_transform_src_dst_center");
-        this.U = GLES20.glGetUniformLocation(getProgram(), "top_left_spline_transform_src_dst_aligned_parabolic_coeff");
-        this.V = GLES20.glGetUniformLocation(getProgram(), "top_right_spline_transform_src_dst_aligned_parabolic_coeff");
-        this.W = GLES20.glGetUniformLocation(getProgram(), "bottom_spline_transform_src_dst_center");
-        this.X = GLES20.glGetUniformLocation(getProgram(), "bottom_left_spline_transform_src_dst_aligned_parabolic_coeff");
-        this.Y = GLES20.glGetUniformLocation(getProgram(), "bottom_right_spline_transform_src_dst_aligned_parabolic_coeff");
+        this.inputTemplateTextureCoordinate = GLES20.glGetAttribLocation(getProgram(), "inputTemplateTextureCoordinate");
+        this.eyeshadow_texture = GLES20.glGetUniformLocation(getProgram(), "eyeshadow_texture");
+        this.eyeliner_texture = GLES20.glGetUniformLocation(getProgram(), "eyeliner_texture");
+        this.eyelash_texture = GLES20.glGetUniformLocation(getProgram(), "eyelash_texture");
+        this.left_right_flip = GLES20.glGetUniformLocation(getProgram(), "left_right_flip");
+        this.eyeliner_template_color = GLES20.glGetUniformLocation(getProgram(), "eyeliner_template_color");
+        this.eyelash_template_color = GLES20.glGetUniformLocation(getProgram(), "eyelash_template_color");
+        this.frame_to_template_y_remapping_factor = GLES20.glGetUniformLocation(getProgram(), "frame_to_template_y_remapping_factor");
+        this.target_eye_lower_lid_luma = GLES20.glGetUniformLocation(getProgram(), "target_eye_lower_lid_luma");
+        this.level_orient_cos_sin = GLES20.glGetUniformLocation(getProgram(), "level_orient_cos_sin");
+        this.oriented_upper_lid_center = GLES20.glGetUniformLocation(getProgram(), "oriented_upper_lid_center");
+        this.oriented_lower_lid_center = GLES20.glGetUniformLocation(getProgram(), "oriented_lower_lid_center");
+        this.similarity_origin = GLES20.glGetUniformLocation(getProgram(), "similarity_origin");
+        this.similarity_shift = GLES20.glGetUniformLocation(getProgram(), "similarity_shift");
+        this.similarity_scale = GLES20.glGetUniformLocation(getProgram(), "similarity_scale");
+        this.top_spline_transform_src_dst_center = GLES20.glGetUniformLocation(getProgram(), "top_spline_transform_src_dst_center");
+        this.top_left_spline_transform_src_dst_aligned_parabolic_coeff = GLES20.glGetUniformLocation(getProgram(), "top_left_spline_transform_src_dst_aligned_parabolic_coeff");
+        this.top_right_spline_transform_src_dst_aligned_parabolic_coeff = GLES20.glGetUniformLocation(getProgram(), "top_right_spline_transform_src_dst_aligned_parabolic_coeff");
+        this.bottom_spline_transform_src_dst_center = GLES20.glGetUniformLocation(getProgram(), "bottom_spline_transform_src_dst_center");
+        this.bottom_left_spline_transform_src_dst_aligned_parabolic_coeff = GLES20.glGetUniformLocation(getProgram(), "bottom_left_spline_transform_src_dst_aligned_parabolic_coeff");
+        this.bottom_right_spline_transform_src_dst_aligned_parabolic_coeff = GLES20.glGetUniformLocation(getProgram(), "bottom_right_spline_transform_src_dst_aligned_parabolic_coeff");
         this.mIsEnableEyeShadowLocation = GLES20.glGetUniformLocation(getProgram(), "enable_eyeshadow");
         this.mIsEnableEyeLinerLocation = GLES20.glGetUniformLocation(getProgram(), "enable_eyeliner");
         this.mIsEnableEyelashLocation = GLES20.glGetUniformLocation(getProgram(), "enable_eyelash");
         setEyeShadowEnable(this.mIsEyeShadowEnable);
         setEyeLinerEnable(this.mIsEyeLinerEnable);
         setEyeLashEnable(this.mIsEyelashEnable);
-        this.aq = GLES20.glGetUniformLocation(getProgram(), "roi");
-        this.ar = GLES20.glGetUniformLocation(getProgram(), "eyeshadow_multiply_correction");
-        this.as = GLES20.glGetUniformLocation(getProgram(), "analyzing_frame_width_height_in_pixel");
-        this.Z = GLES20.glGetUniformLocation(getProgram(), "environment_luma");
-        this.at = GLES20.glGetUniformLocation(getProgram(), "upper_lid_eyelash_y_scale_adjuster");
-        this.ai = GLES20.glGetUniformLocation(getProgram(), "shimmer_model_scale");
-        this.aj = GLES20.glGetUniformLocation(getProgram(), "environment_brightest");
-        this.ak = GLES20.glGetUniformLocation(getProgram(), "environment_compress");
-        this.B[0] = GLES20.glGetUniformLocation(getProgram(), "bright0_texture");
-        this.E[0] = GLES20.glGetUniformLocation(getProgram(), "glitter0_texture");
-        this.B[1] = GLES20.glGetUniformLocation(getProgram(), "bright1_texture");
-        this.E[1] = GLES20.glGetUniformLocation(getProgram(), "glitter1_texture");
+        this.roi = GLES20.glGetUniformLocation(getProgram(), "roi");
+        this.eyeshadow_multiply_correction = GLES20.glGetUniformLocation(getProgram(), "eyeshadow_multiply_correction");
+        this.analyzing_frame_width_height_in_pixel = GLES20.glGetUniformLocation(getProgram(), "analyzing_frame_width_height_in_pixel");
+        this.environment_luma = GLES20.glGetUniformLocation(getProgram(), "environment_luma");
+        this.upper_lid_eyelash_y_scale_adjuster = GLES20.glGetUniformLocation(getProgram(), "upper_lid_eyelash_y_scale_adjuster");
+        this.shimmer_model_scale = GLES20.glGetUniformLocation(getProgram(), "shimmer_model_scale");
+        this.environment_brightest = GLES20.glGetUniformLocation(getProgram(), "environment_brightest");
+        this.environment_compress = GLES20.glGetUniformLocation(getProgram(), "environment_compress");
+        this.bright_texture[0] = GLES20.glGetUniformLocation(getProgram(), "bright_texture");
+        this.glitter_texture[0] = GLES20.glGetUniformLocation(getProgram(), "glitter0_texture");
+        this.bright_texture[1] = GLES20.glGetUniformLocation(getProgram(), "bright1_texture");
+        this.glitter_texture[1] = GLES20.glGetUniformLocation(getProgram(), "glitter1_texture");
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (this.d != -1) {
-            GLES20.glDeleteTextures(1, new int[]{this.d}, 0);
-            this.d = -1;
+        if (this.eyeshadowTextures != -1) {
+            GLES20.glDeleteTextures(1, new int[]{this.eyeshadowTextures}, 0);
+            this.eyeshadowTextures = -1;
         }
-        if (this.i != -1) {
-            GLES20.glDeleteTextures(1, new int[]{this.i}, 0);
-            this.i = -1;
+        if (this.eyeLinerTextures != -1) {
+            GLES20.glDeleteTextures(1, new int[]{this.eyeLinerTextures}, 0);
+            this.eyeLinerTextures = -1;
         }
-        if (this.o != -1) {
-            GLES20.glDeleteTextures(1, new int[]{this.o}, 0);
-            this.o = -1;
+        if (this.eyelashTextures != -1) {
+            GLES20.glDeleteTextures(1, new int[]{this.eyelashTextures}, 0);
+            this.eyelashTextures = -1;
         }
         for (int i = 0; i < 2; i++) {
             if (this.A[i] != -1) {
@@ -420,30 +420,30 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         int i;
         float f;
         int i2 = 33985;
-        if (this.d != -1) {
+        if (this.eyeshadowTextures != -1) {
             GLES20.glActiveTexture(33985);
-            GLES20.glBindTexture(3553, this.d);
-            GLES20.glUniform1i(this.e, 1);
+            GLES20.glBindTexture(3553, this.eyeshadowTextures);
+            GLES20.glUniform1i(this.eyeshadow_texture, 1);
             i2 = 33986;
             i = 2;
         } else {
             i = 1;
         }
         int i3 = i2 + 1;
-        if (this.i != -1) {
+        if (this.eyeLinerTextures != -1) {
             GLES20.glActiveTexture(i2);
-            GLES20.glBindTexture(3553, this.i);
+            GLES20.glBindTexture(3553, this.eyeLinerTextures);
             i2 = i + 1;
-            GLES20.glUniform1i(this.j, i);
+            GLES20.glUniform1i(this.eyeliner_texture, i);
             i = i2;
             i2 = i3;
         }
-        if (this.o != -1) {
+        if (this.eyelashTextures != -1) {
             i3 = i2 + 1;
             GLES20.glActiveTexture(i2);
-            GLES20.glBindTexture(3553, this.o);
+            GLES20.glBindTexture(3553, this.eyelashTextures);
             i2 = i + 1;
-            GLES20.glUniform1i(this.p, i);
+            GLES20.glUniform1i(this.eyelash_texture, i);
             i = i2;
             i2 = i3;
         }
@@ -457,7 +457,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 GLES20.glActiveTexture(i);
                 GLES20.glBindTexture(3553, this.A[i4]);
                 i = i2 + 1;
-                GLES20.glUniform1i(this.B[i4], i2);
+                GLES20.glUniform1i(this.bright_texture[i4], i2);
                 i2 = i3;
             } else {
                 i5 = i2;
@@ -469,7 +469,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 GLES20.glActiveTexture(i2);
                 GLES20.glBindTexture(3553, this.D[i4]);
                 i2 = i + 1;
-                GLES20.glUniform1i(this.E[i4], i);
+                GLES20.glUniform1i(this.glitter_texture[i4], i);
                 i = i2;
                 i2 = i3;
             }
@@ -479,8 +479,8 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             i2 = i5;
         }
         synchronized (this.al) {
-            f = this.am.m_environment_darkest_reference_normalized_luma;
-            float f2 = this.am.m_environment_brightest_reference_normalized_luma;
+            f = this.eyeMakeupData.m_environment_darkest_reference_normalized_luma;
+            float f2 = this.eyeMakeupData.m_environment_brightest_reference_normalized_luma;
             this.ag = f2;
             this.ah = f2 - f;
             this.h[0] = ((f2 - f) * this.g[0]) + f;
@@ -490,11 +490,11 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
             this.n[1] = ((f2 - f) * this.m[1]) + f;
             this.n[2] = f + ((f2 - f) * this.m[2]);
         }
-        GLES20.glUniform3fv(this.f, 1, FloatBuffer.wrap(this.h));
-        GLES20.glUniform3fv(this.l, 1, FloatBuffer.wrap(this.n));
-        GLES20.glUniform1f(this.aj, this.ag);
-        GLES20.glUniform1f(this.ak, this.ah);
-        int i6 = this.ao;
+        GLES20.glUniform3fv(this.eyeliner_template_color, 1, FloatBuffer.wrap(this.h));
+        GLES20.glUniform3fv(this.eyelash_template_color, 1, FloatBuffer.wrap(this.n));
+        GLES20.glUniform1f(this.environment_brightest, this.ag);
+        GLES20.glUniform1f(this.environment_compress, this.ah);
+        int i6 = this.left_right_flip;
         if (this.an) {
             f = 0.0f;
         } else {
@@ -503,64 +503,71 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         GLES20.glUniform1f(i6, f);
         synchronized (this.al) {
             this.b.clear();
-            this.b.put(a(au, this.am.m_rotation));
+            this.b.put(a(au, this.eyeMakeupData.m_rotation));
             this.b.position(0);
-            GLES20.glVertexAttribPointer(this.a, 2, 5126, false, 0, this.b);
-            GLES20.glEnableVertexAttribArray(this.a);
+            GLES20.glVertexAttribPointer(this.inputTemplateTextureCoordinate, 2, 5126, false, 0, this.b);
+            GLES20.glEnableVertexAttribArray(this.inputTemplateTextureCoordinate);
             for (i = 0; i < 4; i++) {
-                this.s[i].x = this.t[i].x / ((float) this.u);
-                this.s[i].y = this.t[i].y / ((float) this.v);
+                this.eyeLinerLashPointInBitmapFacts[i].x = this.eyeInitPoints[i].x / ((float) this.eyeLinerLashBitmapWidth);
+                this.eyeLinerLashPointInBitmapFacts[i].y = this.eyeInitPoints[i].y / ((float) this.eyeLinerLashBitmapHeight);
             }
-            GLES20.glUniform2f(this.as, (float) this.am.m_analyzing_frame_width, (float) this.am.m_analyzing_frame_height);
-            if (this.u * this.am.m_analyzing_frame_height <= 0 || this.v * this.am.m_analyzing_frame_width <= 0) {
+            GLES20.glUniform2f(this.analyzing_frame_width_height_in_pixel, (float) this.eyeMakeupData.m_analyzing_frame_width, (float) this.eyeMakeupData.m_analyzing_frame_height);
+            if (this.eyeLinerLashBitmapWidth * this.eyeMakeupData.m_analyzing_frame_height <= 0 || this.eyeLinerLashBitmapHeight * this.eyeMakeupData.m_analyzing_frame_width <= 0) {
                 f = 1.0f;
             } else {
-                f = ((float) (this.v * this.am.m_analyzing_frame_width)) / ((float) (this.u * this.am.m_analyzing_frame_height));
+                f = ((float) (this.eyeLinerLashBitmapHeight * this.eyeMakeupData.m_analyzing_frame_width)) / ((float) (this.eyeLinerLashBitmapWidth * this.eyeMakeupData.m_analyzing_frame_height));
             }
             for (i6 = 0; i6 < 4; i6++) {
-                PointF pointF = this.s[i6];
+                PointF pointF = this.eyeLinerLashPointInBitmapFacts[i6];
                 pointF.y *= f;
             }
-            GLES20.glUniform1f(this.L, 1.0f / f);
-            float f3 = (this.s[2].x - this.s[0].x) / (this.am.m_oriented_eye_points[2].x - this.am.m_oriented_eye_points[0].x);
-            GLES20.glUniform1f(this.ai, Math.max(0.0f, Math.min(1.0f, ((((1.0f / f3) * ((float) this.u)) / ((float) this.w)) - 0.35f) / 0.3f)));
+            GLES20.glUniform1f(this.frame_to_template_y_remapping_factor, 1.0f / f);
+            float similarScale = (this.eyeLinerLashPointInBitmapFacts[2].x - this.eyeLinerLashPointInBitmapFacts[0].x) / (this.eyeMakeupData.m_oriented_eye_points[2].x - this.eyeMakeupData.m_oriented_eye_points[0].x);
+            GLES20.glUniform1f(this.shimmer_model_scale, Math.max(0.0f, Math.min(1.0f, ((((1.0f / similarScale) * ((float) this.eyeLinerLashBitmapWidth)) / ((float) this.w)) - 0.35f) / 0.3f)));
 
             //眼线,睫毛,眼影重叠区域
-            Rect rect = new Rect();
-            rect.union(this.F);
-            rect.union(this.G);
-            rect.union(this.H);
+            Rect unionRect = new Rect();
+            unionRect.union(this.shadowRect);
+            unionRect.union(this.eyeLinerRect);
+            unionRect.union(this.eyeLashRect);
 
 
-            PointF pointF2 = new PointF(this.t[1].x, this.t[0].y);
-            this.ap[0] = (pointF2.x - ((float) rect.left)) / (pointF2.x - this.t[0].x);
-            this.ap[1] = (pointF2.y - ((float) rect.top)) / (pointF2.y - this.t[1].y);
-            this.ap[2] = (((float) rect.right) - pointF2.x) / (this.t[2].x - pointF2.x);
-            this.ap[3] = (((float) rect.bottom) - pointF2.y) / (this.t[3].y - pointF2.y);
-            GLES20.glUniform4f(this.aq, Math.min(Math.max(this.am.m_oriented_eye_centers[0].x, this.am.m_oriented_eye_centers[1].x) + (this.ap[0] * (this.am.m_oriented_eye_points[0].x - Math.max(this.am.m_oriented_eye_centers[0].x, this.am.m_oriented_eye_centers[1].x))), this.am.m_oriented_eye_centers[0].x - ((this.s[1].x - (((float) rect.left) / ((float) this.u))) / f3)), Math.max(Math.min(this.am.m_oriented_eye_centers[0].x, this.am.m_oriented_eye_centers[1].x) + (this.ap[2] * (this.am.m_oriented_eye_points[2].x - Math.min(this.am.m_oriented_eye_centers[0].x, this.am.m_oriented_eye_centers[1].x))), this.am.m_oriented_eye_centers[0].x + ((((float) (rect.right / this.u)) - this.s[1].x) / f3)), Math.min(this.am.m_oriented_eye_centers[0].y + (this.ap[1] * (this.am.m_oriented_eye_points[1].y - this.am.m_oriented_eye_centers[0].y)), this.am.m_oriented_eye_centers[0].y - ((this.s[0].y - (f * (((float) rect.top) / ((float) this.v)))) / f3)), this.am.m_oriented_eye_points[3].y + (((this.s[3].y - this.s[0].y) * (this.ap[3] - 1.0f)) / f3));
-            GLES20.glUniform1f(this.M, this.am.m_target_eye_lower_lid_luma);
-            GLES20.glUniform1f(this.ar, Math.max(1.0f, Math.min(5.0f, (((float) Math.pow((double) Math.max(0.0f, (0.5f - this.am.m_target_eye_lower_lid_luma) / 0.5f), 0.25d)) + 1.0f) * (0.5f / Math.max(this.am.m_target_eye_lower_lid_luma, 0.001f)))));
-            GLES20.glUniform2f(this.N, this.am.m_target_level_orientation_cos, this.am.m_target_level_orientation_sin);
-            GLES20.glUniform2f(this.O, this.am.m_oriented_eye_centers[0].x, this.am.m_oriented_eye_centers[0].y);
-            GLES20.glUniform2f(this.P, this.am.m_oriented_eye_centers[1].x, this.am.m_oriented_eye_centers[1].y);
-            GLES20.glUniform2f(this.Q, this.am.m_oriented_eye_points[0].x, this.am.m_oriented_eye_points[0].y);
-            GLES20.glUniform2f(this.R, this.s[0].x - this.am.m_oriented_eye_points[0].x, this.s[0].y - this.am.m_oriented_eye_points[0].y);
-            GLES20.glUniform1f(this.S, f3);
-            GLES20.glUniform4f(this.T, this.am.m_parabolic_polar_transform_top_left_src_center.x, this.am.m_parabolic_polar_transform_top_left_src_center.y, this.am.m_parabolic_polar_transform_top_left_dst_center.x, this.am.m_parabolic_polar_transform_top_left_dst_center.y);
-            GLES20.glUniform4f(this.U, this.am.m_parabolic_polar_transform_top_left_src_aligned_coeff[0], this.am.m_parabolic_polar_transform_top_left_src_aligned_coeff[1], this.am.m_parabolic_polar_transform_top_left_dst_aligned_coeff[0], this.am.m_parabolic_polar_transform_top_left_dst_aligned_coeff[1]);
-            GLES20.glUniform4f(this.V, this.am.m_parabolic_polar_transform_top_right_src_aligned_coeff[0], this.am.m_parabolic_polar_transform_top_right_src_aligned_coeff[1], this.am.m_parabolic_polar_transform_top_right_dst_aligned_coeff[0], this.am.m_parabolic_polar_transform_top_right_dst_aligned_coeff[1]);
-            GLES20.glUniform4f(this.W, this.am.m_parabolic_polar_transform_bottom_left_src_center.x, this.am.m_parabolic_polar_transform_bottom_left_src_center.y, this.am.m_parabolic_polar_transform_bottom_left_dst_center.x, this.am.m_parabolic_polar_transform_bottom_left_dst_center.y);
-            GLES20.glUniform4f(this.X, this.am.m_parabolic_polar_transform_bottom_left_src_aligned_coeff[0], this.am.m_parabolic_polar_transform_bottom_left_src_aligned_coeff[1], this.am.m_parabolic_polar_transform_bottom_left_dst_aligned_coeff[0], this.am.m_parabolic_polar_transform_bottom_left_dst_aligned_coeff[1]);
-            GLES20.glUniform4f(this.Y, this.am.m_parabolic_polar_transform_bottom_right_src_aligned_coeff[0], this.am.m_parabolic_polar_transform_bottom_right_src_aligned_coeff[1], this.am.m_parabolic_polar_transform_bottom_right_dst_aligned_coeff[0], this.am.m_parabolic_polar_transform_bottom_right_dst_aligned_coeff[1]);
-            GLES20.glUniform2f(this.Z, this.am.m_environment_darkest_reference_normalized_luma, this.am.m_environment_brightest_reference_normalized_luma);
-            GLES20.glUniform1f(this.at, Math.max(0.2f, Math.min(1.0f, ((this.am.m_parabolic_polar_transform_top_left_src_aligned_coeff[1] * f3) / this.am.m_parabolic_polar_transform_top_left_dst_aligned_coeff[1]) * 1.2f)));
+            PointF pointF2 = new PointF(this.eyeInitPoints[1].x, this.eyeInitPoints[0].y);
+            this.centerPointControlFactors[0] = (pointF2.x - ((float) unionRect.left)) / (pointF2.x - this.eyeInitPoints[0].x);
+            this.centerPointControlFactors[1] = (pointF2.y - ((float) unionRect.top)) / (pointF2.y - this.eyeInitPoints[1].y);
+            this.centerPointControlFactors[2] = (((float) unionRect.right) - pointF2.x) / (this.eyeInitPoints[2].x - pointF2.x);
+            this.centerPointControlFactors[3] = (((float) unionRect.bottom) - pointF2.y) / (this.eyeInitPoints[3].y - pointF2.y);
+            GLES20.glUniform4f(this.roi,
+                    Math.min( Math.max(this.eyeMakeupData.m_oriented_eye_centers[0].x, this.eyeMakeupData.m_oriented_eye_centers[1].x)
+                                    + (this.centerPointControlFactors[0] * (this.eyeMakeupData.m_oriented_eye_points[0].x - Math.max(this.eyeMakeupData.m_oriented_eye_centers[0].x, this.eyeMakeupData.m_oriented_eye_centers[1].x))),
+                            this.eyeMakeupData.m_oriented_eye_centers[0].x - ((this.eyeLinerLashPointInBitmapFacts[1].x - (((float) unionRect.left) / ((float) this.eyeLinerLashBitmapWidth))) / similarScale)),
+                    Math.max(Math.min(this.eyeMakeupData.m_oriented_eye_centers[0].x, this.eyeMakeupData.m_oriented_eye_centers[1].x) + (this.centerPointControlFactors[2] * (this.eyeMakeupData.m_oriented_eye_points[2].x - Math.min(this.eyeMakeupData.m_oriented_eye_centers[0].x, this.eyeMakeupData.m_oriented_eye_centers[1].x))), this.eyeMakeupData.m_oriented_eye_centers[0].x + ((((float) (unionRect.right / this.eyeLinerLashBitmapWidth)) - this.eyeLinerLashPointInBitmapFacts[1].x) / similarScale)),
+                    Math.min(this.eyeMakeupData.m_oriented_eye_centers[0].y + (this.centerPointControlFactors[1] * (this.eyeMakeupData.m_oriented_eye_points[1].y - this.eyeMakeupData.m_oriented_eye_centers[0].y)), this.eyeMakeupData.m_oriented_eye_centers[0].y - ((this.eyeLinerLashPointInBitmapFacts[0].y - (f * (((float) unionRect.top) / ((float) this.eyeLinerLashBitmapHeight)))) / similarScale)),
+                    this.eyeMakeupData.m_oriented_eye_points[3].y + (((this.eyeLinerLashPointInBitmapFacts[3].y - this.eyeLinerLashPointInBitmapFacts[0].y) * (this.centerPointControlFactors[3] - 1.0f)) / similarScale)
+            );
+            GLES20.glUniform1f(this.target_eye_lower_lid_luma, this.eyeMakeupData.m_target_eye_lower_lid_luma);
+            GLES20.glUniform1f(this.eyeshadow_multiply_correction, Math.max(1.0f, Math.min(5.0f, (((float) Math.pow((double) Math.max(0.0f, (0.5f - this.eyeMakeupData.m_target_eye_lower_lid_luma) / 0.5f), 0.25d)) + 1.0f) * (0.5f / Math.max(this.eyeMakeupData.m_target_eye_lower_lid_luma, 0.001f)))));
+            GLES20.glUniform2f(this.level_orient_cos_sin, this.eyeMakeupData.m_target_level_orientation_cos, this.eyeMakeupData.m_target_level_orientation_sin);
+            GLES20.glUniform2f(this.oriented_upper_lid_center, this.eyeMakeupData.m_oriented_eye_centers[0].x, this.eyeMakeupData.m_oriented_eye_centers[0].y);
+            GLES20.glUniform2f(this.oriented_lower_lid_center, this.eyeMakeupData.m_oriented_eye_centers[1].x, this.eyeMakeupData.m_oriented_eye_centers[1].y);
+            GLES20.glUniform2f(this.similarity_origin, this.eyeMakeupData.m_oriented_eye_points[0].x, this.eyeMakeupData.m_oriented_eye_points[0].y);
+            GLES20.glUniform2f(this.similarity_shift, this.eyeLinerLashPointInBitmapFacts[0].x - this.eyeMakeupData.m_oriented_eye_points[0].x, this.eyeLinerLashPointInBitmapFacts[0].y - this.eyeMakeupData.m_oriented_eye_points[0].y);
+            GLES20.glUniform1f(this.similarity_scale, similarScale);
+            GLES20.glUniform4f(this.top_spline_transform_src_dst_center, this.eyeMakeupData.m_parabolic_polar_transform_top_left_src_center.x, this.eyeMakeupData.m_parabolic_polar_transform_top_left_src_center.y, this.eyeMakeupData.m_parabolic_polar_transform_top_left_dst_center.x, this.eyeMakeupData.m_parabolic_polar_transform_top_left_dst_center.y);
+            GLES20.glUniform4f(this.top_left_spline_transform_src_dst_aligned_parabolic_coeff, this.eyeMakeupData.m_parabolic_polar_transform_top_left_src_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_top_left_src_aligned_coeff[1], this.eyeMakeupData.m_parabolic_polar_transform_top_left_dst_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_top_left_dst_aligned_coeff[1]);
+            GLES20.glUniform4f(this.top_right_spline_transform_src_dst_aligned_parabolic_coeff, this.eyeMakeupData.m_parabolic_polar_transform_top_right_src_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_top_right_src_aligned_coeff[1], this.eyeMakeupData.m_parabolic_polar_transform_top_right_dst_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_top_right_dst_aligned_coeff[1]);
+            GLES20.glUniform4f(this.bottom_spline_transform_src_dst_center, this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_src_center.x, this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_src_center.y, this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_dst_center.x, this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_dst_center.y);
+            GLES20.glUniform4f(this.bottom_left_spline_transform_src_dst_aligned_parabolic_coeff, this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_src_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_src_aligned_coeff[1], this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_dst_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_bottom_left_dst_aligned_coeff[1]);
+            GLES20.glUniform4f(this.bottom_right_spline_transform_src_dst_aligned_parabolic_coeff, this.eyeMakeupData.m_parabolic_polar_transform_bottom_right_src_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_bottom_right_src_aligned_coeff[1], this.eyeMakeupData.m_parabolic_polar_transform_bottom_right_dst_aligned_coeff[0], this.eyeMakeupData.m_parabolic_polar_transform_bottom_right_dst_aligned_coeff[1]);
+            GLES20.glUniform2f(this.environment_luma, this.eyeMakeupData.m_environment_darkest_reference_normalized_luma, this.eyeMakeupData.m_environment_brightest_reference_normalized_luma);
+            GLES20.glUniform1f(this.upper_lid_eyelash_y_scale_adjuster, Math.max(0.2f, Math.min(1.0f, ((this.eyeMakeupData.m_parabolic_polar_transform_top_left_src_aligned_coeff[1] * similarScale) / this.eyeMakeupData.m_parabolic_polar_transform_top_left_dst_aligned_coeff[1]) * 1.2f)));
         }
     }
 
     @Override
     public void runPendingOnDrawTasks() {
         super.runPendingOnDrawTasks();
-        m();
+        drawShadow();
         o();
         n();
     }
@@ -582,15 +589,15 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
 
 //    initEyePoints(mEyePoints, 450, 300, 480, 320, 2)
 //    在每个控制过程有一个控制变量
-    public void initPoints(PointF[] pointFArr, int i, int i2, int i3, int i4, int i5) {
+    public void initPoints(PointF[] pointFArr, int normalBitmapWidth, int normalBitmapHeight, int i3, int i4, int i5) {
         if (i5 == 2) {
             int i6;
-            this.u = i;
-            this.v = i2;
+            this.eyeLinerLashBitmapWidth = normalBitmapWidth;
+            this.eyeLinerLashBitmapHeight = normalBitmapHeight;
             this.w = i3;
             this.x = i4;
-            this.k = ByteBuffer.allocate(i * i2);
-            this.q = ByteBuffer.allocate(i * i2);
+            this.k = ByteBuffer.allocate(normalBitmapWidth * normalBitmapHeight);
+            this.q = ByteBuffer.allocate(normalBitmapWidth * normalBitmapHeight);
             this.y = 0;
             for (i6 = 0; i6 < i5; i6++) {
                 this.y += (i3 >> i6) * (i4 >> i6);
@@ -600,16 +607,16 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 this.C[i6] = ByteBuffer.allocate((i3 >> i6) * (i4 >> i6));
             }
             for (i6 = 0; i6 < 4; i6++) {
-                this.t[i6] = pointFArr[i6];
+                this.eyeInitPoints[i6] = pointFArr[i6];
             }
-            PointF pointF = new PointF(this.t[1].x, this.t[0].y);
-            this.ap[0] = pointF.x / (pointF.x - this.t[0].x);
-            this.ap[1] = pointF.y / (pointF.y - this.t[1].y);
-            this.ap[2] = (((float) i) - pointF.x) / (this.t[2].x - pointF.x);
-            this.ap[3] = (((float) i2) - pointF.y) / (this.t[3].y - pointF.y);
-            this.F.set(Math.round(pointF.x), Math.round(pointF.y), Math.round(pointF.x), Math.round(pointF.y));
-            this.G.set(Math.round(pointF.x), Math.round(pointF.y), Math.round(pointF.x), Math.round(pointF.y));
-            this.H.set(Math.round(pointF.x), Math.round(pointF.y), Math.round(pointF.x), Math.round(pointF.y));
+            PointF centerPointer = new PointF(this.eyeInitPoints[1].x, this.eyeInitPoints[0].y);
+            this.centerPointControlFactors[0] = centerPointer.x / (centerPointer.x - this.eyeInitPoints[0].x);
+            this.centerPointControlFactors[1] = centerPointer.y / (centerPointer.y - this.eyeInitPoints[1].y);
+            this.centerPointControlFactors[2] = (((float) normalBitmapWidth) - centerPointer.x) / (this.eyeInitPoints[2].x - centerPointer.x);
+            this.centerPointControlFactors[3] = (((float) normalBitmapHeight) - centerPointer.y) / (this.eyeInitPoints[3].y - centerPointer.y);
+            this.shadowRect.set(Math.round(centerPointer.x), Math.round(centerPointer.y), Math.round(centerPointer.x), Math.round(centerPointer.y));
+            this.eyeLinerRect.set(Math.round(centerPointer.x), Math.round(centerPointer.y), Math.round(centerPointer.x), Math.round(centerPointer.y));
+            this.eyeLashRect.set(Math.round(centerPointer.x), Math.round(centerPointer.y), Math.round(centerPointer.x), Math.round(centerPointer.y));
             this.r = true;
         }
     }
@@ -618,13 +625,13 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         if (rect == null) {
             return false;
         }
-        rect.top = this.v;
+        rect.top = this.eyeLinerLashBitmapHeight;
         rect.bottom = -1;
-        rect.left = this.u;
+        rect.left = this.eyeLinerLashBitmapWidth;
         rect.right = -1;
-        for (int i2 = 0; i2 < this.v; i2++) {
-            int i3 = i2 * this.u;
-            for (int i4 = 0; i4 < this.u; i4++) {
+        for (int i2 = 0; i2 < this.eyeLinerLashBitmapHeight; i2++) {
+            int i3 = i2 * this.eyeLinerLashBitmapWidth;
+            for (int i4 = 0; i4 < this.eyeLinerLashBitmapWidth; i4++) {
                 if (Color.alpha(iArr[i3 + i4]) > i) {
                     rect.top = Math.min(rect.top, i2);
                     rect.bottom = Math.max(rect.bottom, i2);
@@ -633,11 +640,11 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 }
             }
         }
-        if (rect.top == this.v || rect.bottom == -1 || rect.left == this.u || rect.right == -1) {
+        if (rect.top == this.eyeLinerLashBitmapHeight || rect.bottom == -1 || rect.left == this.eyeLinerLashBitmapWidth || rect.right == -1) {
             rect.top = 0;
-            rect.bottom = this.v;
+            rect.bottom = this.eyeLinerLashBitmapHeight;
             rect.left = 0;
-            rect.right = this.u;
+            rect.right = this.eyeLinerLashBitmapWidth;
         }
         return true;
     }
@@ -647,7 +654,7 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         if (!this.r) {
             return false;
         }
-        if (iArr.length != this.u * this.v) {
+        if (iArr.length != this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight) {
             return false;
         }
         if (bArr.length != this.y) {
@@ -656,10 +663,10 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
         if (bArr2.length != this.y) {
             return false;
         }
-        synchronized (this.aE) {
-            calculateRectFromGray(this.I, iArr, 0);
-            this.c = Bitmap.createBitmap(this.u, this.v, Config.ARGB_8888);
-            this.c.setPixels(iArr, 0, this.u, 0, 0, this.u, this.v);
+        synchronized (this.drawShadowLock) {
+            calculateRectFromGray(this.shadowRectN, iArr, 0);
+            this.eyeShadow = Bitmap.createBitmap(this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight, Config.ARGB_8888);
+            this.eyeShadow.setPixels(iArr, 0, this.eyeLinerLashBitmapWidth, 0, 0, this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight);
             int i2 = 0;
             while (i < 2) {
                 int i3 = (this.w >> i) * (this.x >> i);
@@ -672,22 +679,22 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 i2 += i3;
                 i++;
             }
-            this.aF = true;
+            this.needToDrawShadow = true;
         }
         return true;
     }
 
-    private void m() {
-        synchronized (this.aE) {
-            if (this.aF) {
-                if (this.d != -1) {
-                    GLES20.glDeleteTextures(1, new int[]{this.d}, 0);
-                    this.d = -1;
+    private void drawShadow() {
+        synchronized (this.drawShadowLock) {
+            if (this.needToDrawShadow) {
+                if (this.eyeshadowTextures != -1) {
+                    GLES20.glDeleteTextures(1, new int[]{this.eyeshadowTextures}, 0);
+                    this.eyeshadowTextures = -1;
                 }
-                if (!(this.c == null || this.c.isRecycled())) {
-                    this.d = af.a(this.c, -1, false);
+                if (!(this.eyeShadow == null || this.eyeShadow.isRecycled())) {
+                    this.eyeshadowTextures = af.a(this.eyeShadow, -1, false);
                 }
-                this.F.set(this.I);
+                this.shadowRect.set(this.shadowRectN);
                 IntBuffer allocate = IntBuffer.allocate(1);
                 GLES20.glGetIntegerv(3317, allocate);
                 GLES20.glPixelStorei(3317, 1);
@@ -723,26 +730,26 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                     }
                 }
                 GLES20.glPixelStorei(3317, allocate.get(0));
-                this.aF = false;
+                this.needToDrawShadow = false;
             }
         }
     }
 
     public boolean setEyeLash(byte[] bArr, int i) {
         int i2 = 0;
-        if (!this.r || bArr.length != this.u * this.v) {
+        if (!this.r || bArr.length != this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight) {
             return false;
         }
         this.m[0] = ((float) Color.red(i)) / 255.0f;
         this.m[1] = ((float) Color.green(i)) / 255.0f;
         this.m[2] = ((float) Color.blue(i)) / 255.0f;
-        int[] iArr = new int[(this.u * this.v)];
-        while (i2 < this.u * this.v) {
+        int[] iArr = new int[(this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight)];
+        while (i2 < this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight) {
             iArr[i2] = bArr[i2] << 24;
             i2++;
         }
         synchronized (this.aI) {
-            calculateRectFromGray(this.K, iArr, 0);
+            calculateRectFromGray(this.eyeLashRectN, iArr, 0);
             this.q.clear();
             this.q.put(bArr);
             this.q.position(0);
@@ -757,22 +764,22 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
                 IntBuffer allocate = IntBuffer.allocate(1);
                 GLES20.glGetIntegerv(3317, allocate);
                 GLES20.glPixelStorei(3317, 1);
-                if (this.o == -1) {
+                if (this.eyelashTextures == -1) {
                     int[] iArr = new int[1];
                     GLES20.glGenTextures(1, iArr, 0);
-                    this.o = iArr[0];
-                    GLES20.glBindTexture(3553, this.o);
+                    this.eyelashTextures = iArr[0];
+                    GLES20.glBindTexture(3553, this.eyelashTextures);
                     GLES20.glTexParameterf(3553, 10240, 9729.0f);
                     GLES20.glTexParameterf(3553, 10241, 9729.0f);
                     GLES20.glTexParameterf(3553, 10242, 33071.0f);
                     GLES20.glTexParameterf(3553, 10243, 33071.0f);
-                    GLES20.glTexImage2D(3553, 0, 6406, this.u, this.v, 0, 6406, 5121, this.q);
+                    GLES20.glTexImage2D(3553, 0, 6406, this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight, 0, 6406, 5121, this.q);
                 } else {
-                    GLES20.glBindTexture(3553, this.o);
-                    GLES20.glTexSubImage2D(3553, 0, 0, 0, this.u, this.v, 6406, 5121, this.q);
+                    GLES20.glBindTexture(3553, this.eyelashTextures);
+                    GLES20.glTexSubImage2D(3553, 0, 0, 0, this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight, 6406, 5121, this.q);
                 }
                 GLES20.glPixelStorei(3317, allocate.get(0));
-                this.H.set(this.K);
+                this.eyeLashRect.set(this.eyeLashRectN);
                 this.mHasEyeLash = false;
             }
         }
@@ -780,57 +787,57 @@ public class CLMakeupLiveEyeFilter extends GPUImageFilter {
 
     public boolean setEyeLiner(byte[] bArr, int i) {
         int i2 = 0;
-        if (!this.r || bArr.length != this.u * this.v) {
+        if (!this.r || bArr.length != this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight) {
             return false;
         }
         this.g[0] = ((float) Color.red(i)) / 255.0f;
         this.g[1] = ((float) Color.green(i)) / 255.0f;
         this.g[2] = ((float) Color.blue(i)) / 255.0f;
-        int[] iArr = new int[(this.u * this.v)];
-        while (i2 < this.u * this.v) {
+        int[] iArr = new int[(this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight)];
+        while (i2 < this.eyeLinerLashBitmapWidth * this.eyeLinerLashBitmapHeight) {
             iArr[i2] = bArr[i2] << 24;
             i2++;
         }
-        synchronized (this.aG) {
-            calculateRectFromGray(this.J, iArr, 0);
+        synchronized (this.needDrawEyeLinerLock) {
+            calculateRectFromGray(this.eyeLinerRectN, iArr, 0);
             this.k.clear();
             this.k.put(bArr);
             this.k.position(0);
-            this.aH = true;
+            this.needDrawEyeLiner = true;
         }
         return true;
     }
 
     private void o() {
-        synchronized (this.aG) {
-            if (this.aH) {
+        synchronized (this.needDrawEyeLinerLock) {
+            if (this.needDrawEyeLiner) {
                 IntBuffer allocate = IntBuffer.allocate(1);
                 GLES20.glGetIntegerv(3317, allocate);
                 GLES20.glPixelStorei(3317, 1);
-                if (this.i == -1) {
+                if (this.eyeLinerTextures == -1) {
                     int[] iArr = new int[1];
                     GLES20.glGenTextures(1, iArr, 0);
-                    this.i = iArr[0];
-                    GLES20.glBindTexture(3553, this.i);
+                    this.eyeLinerTextures = iArr[0];
+                    GLES20.glBindTexture(3553, this.eyeLinerTextures);
                     GLES20.glTexParameterf(3553, 10240, 9729.0f);
                     GLES20.glTexParameterf(3553, 10241, 9729.0f);
                     GLES20.glTexParameterf(3553, 10242, 33071.0f);
                     GLES20.glTexParameterf(3553, 10243, 33071.0f);
-                    GLES20.glTexImage2D(3553, 0, 6406, this.u, this.v, 0, 6406, 5121, this.k);
+                    GLES20.glTexImage2D(3553, 0, 6406, this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight, 0, 6406, 5121, this.k);
                 } else {
-                    GLES20.glBindTexture(3553, this.i);
-                    GLES20.glTexSubImage2D(3553, 0, 0, 0, this.u, this.v, 6406, 5121, this.k);
+                    GLES20.glBindTexture(3553, this.eyeLinerTextures);
+                    GLES20.glTexSubImage2D(3553, 0, 0, 0, this.eyeLinerLashBitmapWidth, this.eyeLinerLashBitmapHeight, 6406, 5121, this.k);
                 }
                 GLES20.glPixelStorei(3317, allocate.get(0));
-                this.G.set(this.J);
-                this.aH = false;
+                this.eyeLinerRect.set(this.eyeLinerRectN);
+                this.needDrawEyeLiner = false;
             }
         }
     }
 
     public void freshData(LiveEyeMakeupMetadata liveEyeMakeupMetadata) {
         synchronized (this.al) {
-            this.am.Copy(liveEyeMakeupMetadata);
+            this.eyeMakeupData.Copy(liveEyeMakeupMetadata);
         }
     }
 

@@ -142,7 +142,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
         mEyePoints[1] = new PointF(229.0f, 106.5f);
         mEyePoints[2] = new PointF(316.5f, 143.5f);
         mEyePoints[3] = new PointF(229.0f, 181.0f);
-//        for (int i = 0; i < mBitmapCaches.length; i++) {
+//        for (int eyeLinerTextures = 0; eyeLinerTextures < mBitmapCaches.length; eyeLinerTextures++) {
 //            mBitmapCaches[]
 //        }
     }
@@ -249,7 +249,7 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
 //                }
 //
 //                if (i5 == 1) {
-//                    mFilters.add(o);
+//                    mFilters.add(eyelashTextures);
 //                } else {
                     mFilters.add(clMakeupLiveEyeFilterRight);
 //                }
@@ -400,8 +400,8 @@ public class CLMakeupLiveFilter extends GPUImageFilter {
                     mCurrentFeatureHolder.features[EYELASH]) {
                 clMakeupLiveEyeFilterLeft.freshData(liveEyeMakeupMetaData[0]);
                 clMakeupLiveEyeFilterRight.freshData(liveEyeMakeupMetaData[1]);
-//                n.a(liveEyeMakeupMetaData[0]);
-//                o.a(liveEyeMakeupMetaData[1]);
+//                n.inputTemplateTextureCoordinate(liveEyeMakeupMetaData[0]);
+//                eyelashTextures.inputTemplateTextureCoordinate(liveEyeMakeupMetaData[1]);
             }
             if (mCurrentFeatureHolder.features[LIPSTICK]) {
                 clMakeupLiveLipStickFilter.freshData(mLipstickData);

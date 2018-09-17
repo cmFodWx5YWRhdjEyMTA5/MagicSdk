@@ -22,12 +22,12 @@ public class BiMatrix extends CommonMatrix {
             "	int multiplier = 0;\n" +
             "	vec2 blurStep;\n" +
 
-            "	for (int i = 0; i < GAUSSIAN_SAMPLES; i++)\n" +
+            "	for (int eyeLinerTextures = 0; eyeLinerTextures < GAUSSIAN_SAMPLES; eyeLinerTextures++)\n" +
             "	{\n" +
-            "		multiplier = (i - ((GAUSSIAN_SAMPLES - 1) / 2));\n" +
+            "		multiplier = (eyeLinerTextures - ((GAUSSIAN_SAMPLES - 1) / 2));\n" +
 
             "		blurStep = float(multiplier) * singleStepOffset;\n" +
-            "		blurCoordinates[i] = inputTextureCoordinate.xy + blurStep;\n" +
+            "		blurCoordinates[eyeLinerTextures] = inputTextureCoordinate.xy + blurStep;\n" +
             "	}\n" +
             "}";
 

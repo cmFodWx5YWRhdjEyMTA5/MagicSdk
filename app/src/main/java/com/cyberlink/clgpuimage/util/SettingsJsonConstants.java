@@ -51,7 +51,7 @@ public class SettingsJsonConstants {
     public static final String PROMPT_CANCEL_BUTTON_TITLE_DEFAULT = "Don't Send";
     public static final String PROMPT_CANCEL_BUTTON_TITLE_KEY = "cancel_button_title";
     public static final String PROMPT_KEY = "prompt";
-    public static final String PROMPT_MESSAGE_DEFAULT = "Looks like we crashed! Please help us fix the problem by sending a crash report.";
+    public static final String PROMPT_MESSAGE_DEFAULT = "Looks like we crashed! Please help us fix the problem by sending inputTemplateTextureCoordinate crash report.";
     public static final String PROMPT_MESSAGE_KEY = "message";
     public static final String PROMPT_SEND_BUTTON_TITLE_DEFAULT = "Send";
     public static final String PROMPT_SEND_BUTTON_TITLE_KEY = "send_button_title";

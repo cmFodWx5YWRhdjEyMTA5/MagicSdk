@@ -46,7 +46,7 @@ import java.util.List;
 
 /**
  * The main accessor for GPUImage functionality. This class helps to do common
- * tasks through a simple interface.
+ * tasks through inputTemplateTextureCoordinate simple interface.
  */
 public class GPUImage {
     private final Context mContext;
@@ -57,7 +57,7 @@ public class GPUImage {
     private ScaleType mScaleType = ScaleType.CENTER_CROP;
 
     /**
-     * Instantiates a new GPUImage object.
+     * Instantiates inputTemplateTextureCoordinate new GPUImage object.
      *
      * @param context the context
      */
@@ -188,7 +188,7 @@ public class GPUImage {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a Uri.
+     * Sets the image on which the filter should be applied from inputTemplateTextureCoordinate Uri.
      *
      * @param uri the uri of the new image
      */
@@ -197,7 +197,7 @@ public class GPUImage {
     }
 
     /**
-     * Sets the image on which the filter should be applied from a File.
+     * Sets the image on which the filter should be applied from inputTemplateTextureCoordinate File.
      *
      * @param file the file of the new image
      */
@@ -221,7 +221,7 @@ public class GPUImage {
     }
 
     /**
-     * Gets the current displayed image with applied filter as a Bitmap.
+     * Gets the current displayed image with applied filter as inputTemplateTextureCoordinate Bitmap.
      *
      * @return the current image with filter applied
      */
@@ -230,7 +230,7 @@ public class GPUImage {
     }
 
     /**
-     * Gets the given bitmap with current filter applied as a Bitmap.
+     * Gets the given bitmap with current filter applied as inputTemplateTextureCoordinate Bitmap.
      *
      * @param bitmap the bitmap on which the current filter should be applied
      * @return the bitmap with filter applied
@@ -280,9 +280,9 @@ public class GPUImage {
     }
 
     /**
-     * Gets the images for multiple filters on a image. This can be used to
+     * Gets the images for multiple filters on inputTemplateTextureCoordinate image. This can be used to
      * quickly get thumbnail images for filters. <br>
-     * Whenever a new Bitmap is ready, the listener will be called with the
+     * Whenever inputTemplateTextureCoordinate new Bitmap is ready, the listener will be called with the
      * bitmap. The order of the calls to the listener will be the same as the
      * filter order.
      *

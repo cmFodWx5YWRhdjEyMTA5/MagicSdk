@@ -9,25 +9,25 @@ import java.util.List;
 public class PanelUtil {
 
 //    public static class e {
-//        public byte[][] a;
+//        public byte[][] inputTemplateTextureCoordinate;
 //        public byte[][] b;
-//        public boolean c = false;
-//        public int d;
+//        public boolean eyeShadow = false;
+//        public int eyeshadowTextures;
 //        public int e;
 //    }
 //
-//    public static e a(String str) {
-//        int i;
+//    public static e inputTemplateTextureCoordinate(String str) {
+//        int eyeLinerTextures;
 //        int i2 = 0;
 //        e eVar = new e();
-//        List a = PanelDataCenter.a(str);
+//        List inputTemplateTextureCoordinate = PanelDataCenter.inputTemplateTextureCoordinate(str);
 //        List arrayList = new ArrayList();
 //        List arrayList2 = new ArrayList();
-//        eVar.d = 450;
+//        eVar.eyeshadowTextures = 450;
 //        eVar.e = 300;
-//        for (i = 0; i < a.size(); i++) {
-//            Mask mask = (Mask) a.get(i);
-//            Bitmap i3 = MotionControlHelper.i(mask.b());
+//        for (eyeLinerTextures = 0; eyeLinerTextures < inputTemplateTextureCoordinate.size(); eyeLinerTextures++) {
+//            Mask mask = (Mask) inputTemplateTextureCoordinate.get(eyeLinerTextures);
+//            Bitmap i3 = MotionControlHelper.eyeLinerTextures(mask.b());
 //            if (i3 != null) {
 //                if (!(i3.getWidth() == 900 && i3.getHeight() == SettingsJsonConstants.ANALYTICS_FLUSH_INTERVAL_SECS_DEFAULT)) {
 //                    if (i3.getHeight() == 650) {
@@ -36,25 +36,25 @@ public class PanelUtil {
 //                        i3 = Bitmap.createBitmap(i3, 0, 0, 900, SettingsJsonConstants.ANALYTICS_FLUSH_INTERVAL_SECS_DEFAULT);
 //                    }
 //                }
-//                i3 = Bitmap.createScaledBitmap(i3, eVar.d, eVar.e, true);
-//                Object a2 = a(i3);
-//                ac.a(i3);
+//                i3 = Bitmap.createScaledBitmap(i3, eVar.eyeshadowTextures, eVar.e, true);
+//                Object a2 = inputTemplateTextureCoordinate(i3);
+//                ac.inputTemplateTextureCoordinate(i3);
 //                Mask.EyeShadowSide k = mask.k();
 //                if (k == Mask.EyeShadowSide.LEFT) {
 //                    arrayList.add(a2);
-//                    eVar.c = true;
+//                    eVar.eyeShadow = true;
 //                } else if (k == Mask.EyeShadowSide.RIGHT) {
 //                    arrayList2.add(a2);
-//                    eVar.c = true;
+//                    eVar.eyeShadow = true;
 //                } else {
 //                    arrayList.add(a2);
 //                    arrayList2.add(a2);
 //                }
 //            }
 //        }
-//        eVar.a = new byte[arrayList.size()][];
-//        for (i = 0; i < arrayList.size(); byte b = (byte) (i + 1)){
-//            eVar.a[i] = (byte[]) arrayList.get(i);
+//        eVar.inputTemplateTextureCoordinate = new byte[arrayList.size()][];
+//        for (eyeLinerTextures = 0; eyeLinerTextures < arrayList.size(); byte b = (byte) (eyeLinerTextures + 1)){
+//            eVar.inputTemplateTextureCoordinate[eyeLinerTextures] = (byte[]) arrayList.get(eyeLinerTextures);
 //        }
 //        eVar.b = new byte[arrayList2.size()][];
 //        while (i2 < arrayList2.size()) {
@@ -64,16 +64,16 @@ public class PanelUtil {
 //        return eVar;
 //    }
 //
-//    public static byte[] a(Bitmap bitmap) {
-//        int i = 0;
+//    public static byte[] inputTemplateTextureCoordinate(Bitmap bitmap) {
+//        int eyeLinerTextures = 0;
 //        int width = bitmap.getWidth();
 //        int height = bitmap.getHeight();
 //        int[] iArr = new int[(width * height)];
 //        byte[] bArr = new byte[(width * height)];
 //        bitmap.getPixels(iArr, 0, width, 0, 0, width, height);
-//        while (i < width * height) {
-//            bArr[i] = (byte) (iArr[i] >>> 24);
-//            i++;
+//        while (eyeLinerTextures < width * height) {
+//            bArr[eyeLinerTextures] = (byte) (iArr[eyeLinerTextures] >>> 24);
+//            eyeLinerTextures++;
 //        }
 //        return bArr;
 //    }

@@ -264,7 +264,7 @@ public class GPUImageRenderer implements Renderer, PreviewCallback {
     public void onPreviewFrame(final byte[] data, final Camera camera) {
 
         final Size previewSize = camera.getParameters().getPreviewSize();
-        BeautyManager.getInstance(mContext).sendFrameBuffer(data, previewSize.width, previewSize.height, 90, true);
+        BeautyManager.getInstance(mContext).sendFrameBuffer(data, previewSize.width, previewSize.height, 270, true);
         boolean result = BeautyManager.getInstance(mContext).getFaceRect(rect);
         Log.d(TAG, result + "");
         if (result) {

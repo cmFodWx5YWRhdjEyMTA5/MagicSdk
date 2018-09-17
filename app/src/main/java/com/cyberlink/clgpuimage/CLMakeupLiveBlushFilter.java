@@ -76,7 +76,7 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
     private int A;
     private boolean B;
     private int C = 90;
-    protected int a;
+    protected int inputTemplateTextureCoordinate;
     private Object b = new Object();
     private boolean c = false;
     private Object d = new Object();
@@ -84,22 +84,22 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
     private float f = 1.0f;
     private float[] mBlushColor = new float[]{0.0f, 0.0f, 0.0f};
     private float[] h = new float[]{0.0f, 0.0f, 0.0f};
-    private int i;
-    private int j;
-    private int k;
-    private int l;
-    private int m;
-    private int n;
+    private int blush_strength;
+    private int blush_color;
+    private int Mid_X_of_left_right;
+    private int RotateCenter;
+    private int Cos_Sin;
+    private int negSin_Cos;
     private Bitmap o = null;
     private int p = -1;
-    private int q;
-    private int r;
-    private int s;
+    private int left_blush_texture;
+    private int left_blush_roi;
+    private int left_blush_stretch;
     private Bitmap t = null;
     private int u = -1;
-    private int v;
-    private int w;
-    private int x;
+    private int right_blush_texture;
+    private int right_blush_roi;
+    private int right_blush_stretch;
     private float y;
     private float z;
 
@@ -112,19 +112,19 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
     public void onInit() {
         super.onInit();
 
-        this.a = GLES20.glGetAttribLocation(getProgram(), "inputTemplateTextureCoordinate");
-        this.i = GLES20.glGetUniformLocation(getProgram(), "blush_strength");
-        this.j = GLES20.glGetUniformLocation(getProgram(), "blush_color");
-        this.k = GLES20.glGetUniformLocation(getProgram(), "Mid_X_of_left_right");
-        this.l = GLES20.glGetUniformLocation(getProgram(), "RotateCenter");
-        this.m = GLES20.glGetUniformLocation(getProgram(), "Cos_Sin");
-        this.n = GLES20.glGetUniformLocation(getProgram(), "negSin_Cos");
-        this.q = GLES20.glGetUniformLocation(getProgram(), "left_blush_texture");
-        this.r = GLES20.glGetUniformLocation(getProgram(), "left_blush_roi");
-        this.s = GLES20.glGetUniformLocation(getProgram(), "left_blush_stretch");
-        this.v = GLES20.glGetUniformLocation(getProgram(), "right_blush_texture");
-        this.w = GLES20.glGetUniformLocation(getProgram(), "right_blush_roi");
-        this.x = GLES20.glGetUniformLocation(getProgram(), "right_blush_stretch");
+        this.inputTemplateTextureCoordinate = GLES20.glGetAttribLocation(getProgram(), "inputTemplateTextureCoordinate");
+        this.blush_strength = GLES20.glGetUniformLocation(getProgram(), "blush_strength");
+        this.blush_color = GLES20.glGetUniformLocation(getProgram(), "blush_color");
+        this.Mid_X_of_left_right = GLES20.glGetUniformLocation(getProgram(), "Mid_X_of_left_right");
+        this.RotateCenter = GLES20.glGetUniformLocation(getProgram(), "RotateCenter");
+        this.Cos_Sin = GLES20.glGetUniformLocation(getProgram(), "Cos_Sin");
+        this.negSin_Cos = GLES20.glGetUniformLocation(getProgram(), "negSin_Cos");
+        this.left_blush_texture = GLES20.glGetUniformLocation(getProgram(), "left_blush_texture");
+        this.left_blush_roi = GLES20.glGetUniformLocation(getProgram(), "left_blush_roi");
+        this.left_blush_stretch = GLES20.glGetUniformLocation(getProgram(), "left_blush_stretch");
+        this.right_blush_texture = GLES20.glGetUniformLocation(getProgram(), "right_blush_texture");
+        this.right_blush_roi = GLES20.glGetUniformLocation(getProgram(), "right_blush_roi");//开始的坐标点
+        this.right_blush_stretch = GLES20.glGetUniformLocation(getProgram(), "right_blush_stretch");//长和宽
     }
 
     @Override
@@ -156,9 +156,9 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
         this.e.clear();
         this.e.put(a(D, this.A));
         this.e.position(0);
-        GLES20.glVertexAttribPointer(this.a, 2, 5126, false, 0, this.e);
-        GLES20.glEnableVertexAttribArray(this.a);
-        setFloat(this.i, this.f);
+        GLES20.glVertexAttribPointer(this.inputTemplateTextureCoordinate, 2, 5126, false, 0, this.e);
+        GLES20.glEnableVertexAttribArray(this.inputTemplateTextureCoordinate);
+        setFloat(this.blush_strength, this.f);
         synchronized (this.d) {
             float f = this.z;
             float f2 = this.y;
@@ -166,16 +166,16 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
             this.h[1] = ((f2 - f) * this.mBlushColor[1]) + f;
             this.h[2] = f + ((f2 - f) * this.mBlushColor[2]);
         }
-        GLES20.glUniform3fv(this.j, 1, FloatBuffer.wrap(this.h));
+        GLES20.glUniform3fv(this.blush_color, 1, FloatBuffer.wrap(this.h));
         if (this.p != -1) {
             GLES20.glActiveTexture(33987);
             GLES20.glBindTexture(3553, this.p);
-            GLES20.glUniform1i(this.q, 3);
+            GLES20.glUniform1i(this.left_blush_texture, 3);
         }
         if (this.u != -1) {
             GLES20.glActiveTexture(33988);
             GLES20.glBindTexture(3553, this.u);
-            GLES20.glUniform1i(this.v, 4);
+            GLES20.glUniform1i(this.right_blush_texture, 4);
         }
     }
 
@@ -187,14 +187,14 @@ public class CLMakeupLiveBlushFilter extends GPUImageFilter {
 
     public void freshData(LiveBlushMakeupdata liveBlushMakeupdata) {
         synchronized (this.d) {
-            setPoint(this.n, new PointF(-liveBlushMakeupdata.m_sin_val, liveBlushMakeupdata.m_cos_val));
-            setPoint(this.m, new PointF(liveBlushMakeupdata.m_cos_val, liveBlushMakeupdata.m_sin_val));
-            setPoint(this.l, liveBlushMakeupdata.m_center);
-            setFloat(this.k, liveBlushMakeupdata.m_center.x);
-            setPoint(this.s, new PointF(b(liveBlushMakeupdata.m_left_blush_roi.width()), b(liveBlushMakeupdata.m_left_blush_roi.height())));
-            setPoint(this.r, new PointF(liveBlushMakeupdata.m_left_blush_roi.l, liveBlushMakeupdata.m_left_blush_roi.t));
-            setPoint(this.x, new PointF(b(liveBlushMakeupdata.m_right_blush_roi.width()), b(liveBlushMakeupdata.m_right_blush_roi.height())));
-            setPoint(this.w, new PointF(liveBlushMakeupdata.m_right_blush_roi.l, liveBlushMakeupdata.m_right_blush_roi.t));
+            setPoint(this.negSin_Cos, new PointF(-liveBlushMakeupdata.m_sin_val, liveBlushMakeupdata.m_cos_val));
+            setPoint(this.Cos_Sin, new PointF(liveBlushMakeupdata.m_cos_val, liveBlushMakeupdata.m_sin_val));
+            setPoint(this.RotateCenter, liveBlushMakeupdata.m_center);
+            setFloat(this.Mid_X_of_left_right, liveBlushMakeupdata.m_center.x);
+            setPoint(this.left_blush_stretch, new PointF(b(liveBlushMakeupdata.m_left_blush_roi.width()), b(liveBlushMakeupdata.m_left_blush_roi.height())));
+            setPoint(this.left_blush_roi, new PointF(liveBlushMakeupdata.m_left_blush_roi.l, liveBlushMakeupdata.m_left_blush_roi.t));
+            setPoint(this.right_blush_stretch, new PointF(b(liveBlushMakeupdata.m_right_blush_roi.width()), b(liveBlushMakeupdata.m_right_blush_roi.height())));
+            setPoint(this.right_blush_roi, new PointF(liveBlushMakeupdata.m_right_blush_roi.l, liveBlushMakeupdata.m_right_blush_roi.t));
             this.z = liveBlushMakeupdata.m_environment_darkest_reference_normalized_luma;
             this.y = liveBlushMakeupdata.m_environment_brightest_reference_normalized_luma;
             this.A = liveBlushMakeupdata.m_rotation;
